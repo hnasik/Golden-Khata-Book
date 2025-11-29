@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>Hisab Khata - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        --primary: #6366f1;
+        --primary-light: #818cf8;
+        --primary-dark: #4f46e5;
+        --accent: #f97316;
+        --accent-light: #fb923c;
+        --success: #22c55e;
+        --success-light: #4ade80;
+        --danger: #ef4444;
+        --danger-light: #f87171;
+        --warning: #f59e0b;
+        --bg-primary: #1e293b;
+        --bg-secondary: #334155;
+        --bg-tertiary: #475569;
+        --bg-card: #334155;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border: #475569;
+        --border-light: #64748b;
+        --shadow: rgba(0, 0, 0, 0.5);
+        --glow: rgba(99, 102, 241, 0.5);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+    
+    /* Dashboard */
+    .dashboard {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-primary);
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+    }
+    
+    /* Search Bar - Reduced size for mobile */
+    .search-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      backdrop-filter: blur(10px);
+      z-index: 5;
+    }
+    
+    .search-row {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      align-items: center;
+    }
+    
+    .search-row input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 0;
+    }
+    
+    .search-row input::placeholder {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    
+    .search-row input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--bg-tertiary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    /* Buttons - Reduced size for mobile */
+    .btn {
+      padding: 8px 12px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.6s;
+    }
+    
+    .btn:hover::before {
+      left: 100%;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+    }
+    
+    .btn.secondary {
+      background: linear-gradient(135deg, var(--accent) 0%, #ea580c 100%);
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+    
+    .btn.secondary:hover {
+      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
+    }
+    
+    .btn.gray {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn.gray:hover {
+      background: var(--bg-secondary);
+      border-color: var(--border-light);
+    }
+    
+    .btn.settle {
+      background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+    }
+    
+    .btn.settle:hover {
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+    }
+    
+    /* Content Area */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px 100px;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 24px 0 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.01em;
+    }
+    
+    /* User Cards */
+    .user-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .user-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-light);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    .user-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .user-meta h4 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+    
+    .muted {
+      color: var(--text-muted);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .right-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    
+    /* Pills */
+    .pill {
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    
+    .pill.owe-me {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+    
+    .pill.i-owe {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    
+    .pill.settled {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    /* List Cards */
+    .list-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .list-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-light);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    
+    .list-left {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    
+    .date {
+      font-size: 13px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .details-btn {
+      padding: 10px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .details-btn:hover {
+      background: var(--bg-secondary);
+      border-color: var(--border-light);
+      color: var(--text-primary);
+    }
+    
+    .list-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 8px 20px;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+    
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 12px 8px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    
+    .tab-btn:hover {
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+    }
+    
+    .tab-btn.active {
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+    
+    .tab-btn i {
+      font-size: 20px;
+    }
+    
+    .tab-btn span {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+      padding: 20px;
+    }
+    
+    .modal-backdrop.show {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .modal {
+      width: 100%;
+      max-width: 520px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 
+        0 0 0 1px var(--border),
+        0 25px 50px -12px var(--shadow);
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      max-height: 85vh;
+      overflow-y: auto;
+      /* Ensure portrait orientation on mobile */
+      max-width: 90vw;
+    }
+    
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    
+    .modal h3 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.01em;
+    }
+    
+    .modal .row {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .modal input {
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin: 8px 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .modal input::placeholder {
+      color: var(--text-muted);
+    }
+    
+    .modal input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--bg-tertiary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    
+    .modal .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+      justify-content: flex-end;
+    }
+    
+    .readonly {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      padding: 14px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 60;
+      font-weight: 500;
+      font-size: 14px;
+      max-width: 90%;
+      backdrop-filter: blur(10px);
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-8px);
+    }
+
+    /* Drawer - Moved to Left Side */
+    .menu-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+    
+    .menu-btn:hover {
+      background: var(--bg-secondary);
+      border-color: var(--border-light);
+      color: var(--text-primary);
+    }
+    
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      width: 85%;
+      max-width: 360px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 80;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    
+    .drawer.open {
+      left: 0;
+    }
+    
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      z-index: 70;
+      backdrop-filter: blur(4px);
+    }
+    
+    .drawer-backdrop.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .drawer h3 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .drawer .hello {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    
+    .drawer .sub {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Contact Section */
+    .contact-section {
+      margin-top: auto;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .contact-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .contact-email {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .contact-email:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--border-light);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+    
+    .contact-email i {
+      color: var(--primary);
+      font-size: 16px;
+    }
+
+    /* Responsive Design */
+    @media (min-width: 768px) {
+      .content {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 24px 100px;
+      }
+      
+      .search-bar {
+        padding: 20px 24px;
+      }
+      
+      .search-row input {
+        padding: 12px 16px;
+        font-size: 15px;
+      }
+      
+      .search-row input::placeholder {
+        font-size: 14px;
+      }
+      
+      .btn {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .menu-btn {
+        padding: 12px 16px;
+        font-size: 18px;
+      }
+      
+      .user-card {
+        padding: 28px;
+      }
+      
+      .list-card {
+        padding: 24px;
+      }
+      
+      .right-actions {
+        flex-direction: row;
+        gap: 16px;
+        align-items: center;
+      }
+      
+      .list-actions {
+        flex-direction: row;
+        gap: 12px;
+        align-items: center;
+      }
+      
+      .modal {
+        padding: 40px;
+        max-width: 560px;
+      }
+      
+      .modal h3 {
+        font-size: 26px;
+      }
+      
+      .bottom-nav {
+        padding: 16px 12px 24px;
+      }
+      
+      .tab-btn {
+        padding: 16px 12px;
+      }
+      
+      .tab-btn i {
+        font-size: 22px;
+      }
+      
+      .tab-btn span {
+        font-size: 12px;
+      }
+      
+      .drawer {
+        width: 380px;
+        left: -380px;
+        padding: 40px 32px;
+      }
+    }
+    
+    /* Loading Animation */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--border);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Dashboard will be rendered here -->
+    <div class="dashboard">
+      <div class="search-bar">
+        <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
+        <div class="search-row">
+          <input id="mobileSearch" placeholder="Search by mobile number" value=""/>
+          <button class="btn" id="searchBtn"><i class="fas fa-search"></i> Search</button>
+        </div>
+      </div>
+      <div class="content">
+        <!-- Content will be rendered by switchTab -->
+      </div>
+      <div class="bottom-nav">
+        <button id="tabHome" class="tab-btn active"><i class="fas fa-home"></i> <span>Search</span></button>
+        <button id="tabPayments" class="tab-btn"><i class="fas fa-hand-holding-usd"></i> <span>They Owe Me</span></button>
+        <button id="tabBorrowing" class="tab-btn"><i class="fas fa-credit-card"></i> <span>I Owe Them</span></button>
+      </div>
+    </div>
+    <div class="drawer" id="sideDrawer">
+      <h3><i class="fas fa-bars"></i> Menu</h3>
+      <div class="hello">?? Hello, <span id="helloName">User</span></div>
+      <div class="sub" id="helloEmail"></div>
+      <button class="btn gray" id="drawerLogout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+      
+      <!-- Contact Us Section -->
+      <div class="contact-section">
+        <div class="contact-title">
+          <i class="fas fa-headset"></i> Need Assistance?
+        </div>
+        <a href="mailto:cart2doors@gmail.com" class="contact-email">
+          <i class="fas fa-envelope"></i>
+          cart2doors@gmail.com
+        </a>
+      </div>
+    </div>
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    
+    <!-- Create Bill Modal -->
+    <div class="modal-backdrop" id="billModalBackdrop">
+      <div class="modal">
+        <h3><i class="fas fa-file-invoice"></i> Create Bill</h3>
+        <div><input id="billItemName" placeholder="Item name (optional)"></div>
+        <div class="row">
+          <input id="billQty" type="number" min="0" step="1" placeholder="Quantity (optional)">
+          <input id="billUnitPrice" type="number" min="0" step="0.01" placeholder="Price per unit (optional)">
+        </div>
+        <div class="row">
+          <input id="billTotal" type="number" min="0" step="0.01" placeholder="Total amount (required)">
+          <input id="billAdvance" type="number" min="0" step="0.01" placeholder="Advance (optional)">
+        </div>
+        <div class="row">
+          <input id="billDue" type="number" min="0" step="0.01" placeholder="Due amount (auto, editable)">
+          <input id="billPrevDue" class="readonly" type="number" min="0" step="0.01" placeholder="Previous due (auto)" readonly>
+        </div>
+        <div><input id="billTotalDue" class="readonly" type="number" min="0" step="0.01" placeholder="Total due (auto)" readonly></div>
+        <div class="actions">
+          <button class="btn gray" id="billCancel">Cancel</button>
+          <button class="btn" id="billSubmit"><i class="fas fa-check"></i> Submit</button>
+        </div>
+        <div class="muted" style="margin-top:16px; font-size:13px;">Total auto-calculates from quantity × unit price; Due = Total - Advance; Previous Due is auto; Total Due = Previous Due + Due.</div>
+      </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal-backdrop" id="detailsModalBackdrop">
+      <div class="modal">
+        <h3><i class="fas fa-info-circle"></i> Bill Details</h3>
+        <div id="detailsBody" class="muted"></div>
+        <div class="actions"><button class="btn gray" id="detailsClose">Close</button></div>
+      </div>
+    </div>
+
+    <!-- Settle Modal (Used for User Settlement) -->
+    <div class="modal-backdrop" id="settleModalBackdrop">
+      <div class="modal">
+        <h3><i class="fas fa-handshake"></i> Settle User Due</h3>
+        <p id="settleDetails" class="muted" style="margin-bottom:20px;"></p>
+        <div id="settleError" class="text-red-600 mb-3 hidden bg-red-100 p-3 rounded-lg text-sm"></div>
+        <div>
+            <label for="settleAmount" class="block text-sm font-medium text-gray-300 mb-2">Amount to Settle</label>
+            <input id="settleAmount" type="number" min="0" step="0.01" placeholder="Amount to Settle" required>
+        </div>
+        <div class="muted" style="margin-top:16px;">Current Net Due: <span id="currentDueDisplay" class="font-bold">? 0.00</span></div>
+        <div class="actions">
+          <button class="btn gray" id="settleCancel">Cancel</button>
+          <button class="btn" id="settleSubmit"><i class="fas fa-check"></i> Confirm Settlement</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">Saved</div>
+  </div>
+
+  <script type="module">
+    // Firebase Imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      getAuth, onAuthStateChanged, signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { 
+      getFirestore, doc, getDoc, getDocs, collection, query, where, addDoc, serverTimestamp, setDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // --- Firebase Setup ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9IsIB-QgFSDxxBrMBXn0T1NowZNrY8UY",
+      authDomain: "golden-khata.firebaseapp.com",
+      projectId: "golden-khata",
+      storageBucket: "golden-khata.firebasestorage.app",
+      messagingSenderId: "504224659075",
+      appId: "1:504224659075:web:613123d6cea30546550db6",
+      measurementId: "G-QV9V0WPWR5"
+    };
+
+    // Initialize Firebase with error handling
+    let app, auth, db;
+    try {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
+      console.log("Firebase initialized successfully");
+    } catch (error) {
+      console.error("Error initializing Firebase:", error);
+      showToast("Failed to initialize app. Please try again later.");
+    }
+
+    // Global state
+    let currentProfile = null;
+    let billTargetUser = null;
+    let settleTargetUser = null; 
+    let settleDirection = null;
+
+    // --- Utility Functions ---
+    let toastEl = document.getElementById('toast');
+    function showToast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      setTimeout(()=>toastEl.classList.remove('show'), 2500);
+    }
+    function fmtDate(ts){
+      try{
+        const d = ts?.toDate ? ts.toDate() : (typeof ts === 'number' ? new Date(ts) : new Date());
+        return d.toLocaleString();
+      }catch{ return new Date().toLocaleString(); }
+    }
+    function toTitle(str=''){
+      return str.replace(/\b\w/g, c => c.toUpperCase());
+    }
+    function displayName(value){
+      if(!value) return '-';
+      if(value.includes('@')){
+        const nm = value.split('@')[0].replace(/[._-]+/g,' ');
+        return toTitle(nm.trim());
+      }
+      return value;
+    }
+    
+    async function getPrevDue(fromUserId, toUserId){
+        if(!fromUserId || !toUserId) return 0;
+        const qs = query(collection(db,'bills'), where('fromUserId','==', fromUserId), where('toUserId','==', toUserId));
+        try {
+          const s = await getDocs(qs);
+          let prev = 0;
+          s.forEach(d=>{ 
+            const due = Number(d.data().dueAmount||0); 
+            if(!isNaN(due) && due > 0) prev += due; 
+          });
+          return prev;
+        } catch(error) {
+           console.error("Error fetching previous due:", error);
+           return 0;
+        }
+    }
+
+    // --- Global Functions for Bill Calculations ---
+    window.calcDue = function() {
+      const billTotal = document.getElementById('billTotal');
+      const billAdvance = document.getElementById('billAdvance');
+      const billDue = document.getElementById('billDue');
+      const t = parseFloat(billTotal.value||'0');
+      const a = parseFloat(billAdvance.value||'0');
+      let due = (isNaN(t)?0:t) - (isNaN(a)?0:a);
+      if(due < 0) due = 0;
+      billDue.value = isNaN(due)?'':due;
+      window.calcTotalDue();
+    }
+    
+    window.calcTotalDue = function() {
+      const billPrevDue = document.getElementById('billPrevDue');
+      const billDue = document.getElementById('billDue');
+      const billTotalDue = document.getElementById('billTotalDue');
+      const prev = parseFloat(billPrevDue.value||'0');
+      const due = parseFloat(billDue.value||'0');
+      let total = (isNaN(prev)?0:prev) + (isNaN(due)?0:due);
+      if(total < 0) total = 0;
+      billTotalDue.value = total.toFixed(2);
+    }
+    
+    window.recalcTotalFromQty = function() {
+      const billQty = document.getElementById('billQty');
+      const billUnitPrice = document.getElementById('billUnitPrice');
+      const billTotal = document.getElementById('billTotal');
+      const q = parseFloat(billQty.value||'0');
+      const p = parseFloat(billUnitPrice.value||'0');
+      const t = (q*p)||0;
+      if(!billTotal.hasAttribute('data-manual')) billTotal.value = t || '';
+      window.calcDue();
+    }
+    
+    // --- Global Functions ---
+    async function renderRecent(){
+      const list = document.getElementById('recentList');
+      list.innerHTML='';
+      const recent = JSON.parse(localStorage.getItem('recentSearches')||'[]');
+      recent.forEach(async r=>{
+          if (!r.uid) return; 
+          try {
+            const userSnap = await getDoc(doc(db, 'users', r.uid));
+            if(userSnap.exists()){ await renderUserCard(userSnap.data(), list, false); }
+          } catch (error) { console.error("Error fetching recent user:", error); }
+      });
+    }
+    
+    async function searchUser(){
+      const mobile = (document.getElementById('mobileSearch').value||'').trim();
+      const container = document.getElementById('searchResults');
+      container.innerHTML = '';
+      if(!mobile) { showToast('Please enter a mobile number to search.'); return; }
+      try {
+          const qy = query(collection(db,'users'), where('mobile','==',mobile));
+          const snap = await getDocs(qy);
+          if(snap.empty){ container.innerHTML = '<div class="muted" style="text-align:center; padding:40px; font-size:15px;">No user found with that mobile number.</div>'; return; }
+          snap.forEach(async docSnap=>{ await renderUserCard(docSnap.data(), container, true); });
+      } catch (error) {
+          console.error("Search failed:", error);
+          container.innerHTML = `<div class="muted" style="color:#ef4444; text-align:center; padding:40px; font-size:15px;">Search failed. Check console for missing index link or permission errors.</div>`;
+          showToast('Search failed! Check console.');
+      }
+    }
+    
+    async function renderUserCard(u, container, isSearchResult){
+        const currentUserId = currentProfile.uid; 
+        const totalDueOut = await getPrevDue(currentUserId, u.uid);
+        const totalDueIn = await getPrevDue(u.uid, currentUserId);
+        
+        let netDue = totalDueOut - totalDueIn;
+        let dueDisplay = '', settleDirectionAttr = '', settleBtnDisabled = 'disabled', settleBtnClass = 'btn gray';
+
+        if (netDue > 0) {
+            dueDisplay = `<span class="pill owe-me"><i class="fas fa-arrow-down"></i> They Owe: ? ${netDue.toFixed(2)}</span>`;
+            settleDirectionAttr = 'out';
+            settleBtnDisabled = '';
+            settleBtnClass = 'btn settle';
+        } else if (netDue < 0) {
+            dueDisplay = `<span class="pill i-owe"><i class="fas fa-arrow-up"></i> You Owe: ? ${Math.abs(netDue).toFixed(2)}</span>`;
+            settleDirectionAttr = 'in';
+            settleBtnDisabled = '';
+            settleBtnClass = 'btn settle';
+        } else {
+            dueDisplay = `<span class="pill settled"><i class="fas fa-check"></i> Settled</span>`;
+            settleDirectionAttr = 'none';
+        }
+
+        if (isSearchResult) {
+            let recent = JSON.parse(localStorage.getItem('recentSearches')||'[]');
+            recent = [{name:u.name,mobile:u.mobile,email:u.email,uid:u.uid}, ...recent.filter(r=>r.uid!==u.uid)].slice(0,5);
+            localStorage.setItem('recentSearches', JSON.stringify(recent));
+        }
+
+        const card = document.createElement('div');
+        card.className='user-card';
+        card.innerHTML = `
+          <div class="user-meta">
+            <h4>${u.name||displayName(u.email)||'(no name)'}</h4>
+            <div class="muted"><i class="fas fa-phone"></i> ${u.mobile||'-'} · <i class="fas fa-envelope"></i> ${u.email||'-'}</div>
+          </div>
+          <div class="right-actions">
+            ${dueDisplay}
+            <button class="btn secondary bill-btn" data-uid="${u.uid}"><i class="fas fa-plus"></i> Create Bill</button>
+            <button class="${settleBtnClass} settle-btn" data-uid="${u.uid}" data-direction="${settleDirectionAttr}" data-amount="${Math.abs(netDue).toFixed(2)}" ${settleBtnDisabled}><i class="fas fa-handshake"></i> Settle</button>
+          </div>
+        `;
+        container.appendChild(card);
+        
+        card.querySelector('.bill-btn').addEventListener('click', async ()=>{
+          billTargetUser = u;
+          if(!billTargetUser?.uid){ showToast('User ID missing.'); return; }
+          const billItemName = document.getElementById('billItemName');
+          const billQty = document.getElementById('billQty');
+          const billUnitPrice = document.getElementById('billUnitPrice');
+          const billTotal = document.getElementById('billTotal');
+          const billAdvance = document.getElementById('billAdvance');
+          const billDue = document.getElementById('billDue');
+          const billPrevDue = document.getElementById('billPrevDue');
+          const billTotalDue = document.getElementById('billTotalDue');
+          const billModal = document.getElementById('billModalBackdrop');
+          
+          billItemName.value=''; billQty.value=''; billUnitPrice.value=''; billTotal.value=''; billAdvance.value=''; billDue.value='';
+          billPrevDue.value=''; billTotalDue.value=''; billTotal.removeAttribute('data-manual');
+          const prev = await getPrevDue(currentProfile.uid, billTargetUser.uid);
+          billPrevDue.value = prev.toFixed(2);
+          window.calcTotalDue();
+          billModal.classList.add('show');
+        });
+        
+        const settleBtn = card.querySelector('.settle-btn');
+        if (settleBtn) {
+          settleBtn.addEventListener('click', (e)=>{
+            const btn = e.currentTarget;
+            const direction = btn.getAttribute('data-direction');
+            const amount = Number(btn.getAttribute('data-amount'));
+            if (amount > 0) { openUserSettlementModal(u, direction, amount); } 
+            else { showToast('No outstanding due to settle.'); }
+          });
+        }
+    }
+    
+    // --- Tabs and Content Rendering ---
+    function activate(id){
+      ['tabHome','tabPayments','tabBorrowing'].forEach(t=>document.getElementById(t)?.classList.remove('active'));
+      document.getElementById(id)?.classList.add('active');
+    }
+
+    async function switchTab(tab){
+        const content = document.querySelector('.content');
+        activate(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+
+        if(tab==='home'){
+          content.innerHTML = `
+            <div class="section-title"><i class="fas fa-search"></i> Search Results</div>
+            <div id="searchResults"></div>
+            <div class="section-title"><i class="fas fa-history"></i> Recent Searches</div>
+            <div id="recentList"></div>
+          `;
+          renderRecent();
+          document.getElementById('mobileSearch').addEventListener('keyup', (e) => {
+              if (e.key === 'Enter') searchUser();
+          });
+        }
+        else if(tab==='payments' || tab === 'borrowing'){
+            const isPayments = tab === 'payments';
+            const title = isPayments ? 'They Owe Me' : 'I Owe Them';
+            const fromField = isPayments ? 'fromUserId' : 'toUserId';
+            const toField = isPayments ? 'toUserId' : 'fromUserId';
+            const nameField = isPayments ? 'toUserName' : 'fromUserName';
+            const directionText = isPayments ? 'from' : 'to';
+
+            content.innerHTML = `<div class="section-title"><i class="fas ${isPayments ? 'fa-hand-holding-usd' : 'fa-credit-card'}"></i> ${title} (Outstanding)</div><div id="listContainer"></div>`;
+            const listContainer = document.getElementById('listContainer');
+            
+            try {
+                const qs = query(collection(db, 'bills'), where(fromField, '==', currentProfile.uid));
+                const snap = await getDocs(qs);
+                
+                let arr = snap.docs
+                    .map(d => ({id: d.id, ...d.data()}))
+                    .filter(b => (Number(b.dueAmount || 0) > 0))
+                    .sort((a,b)=> (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+
+                if(!arr.length) {
+                    listContainer.innerHTML = `<div class="muted" style="text-align:center; padding:40px; font-size:15px;">No outstanding ${isPayments ? 'payments' : 'borrowings'}.</div>`;
+                } else {
+                    arr.forEach(b=>{
+                      const div = document.createElement('div');
+                      div.className='list-card';
+                      const name = displayName(b[nameField] || b[toField] || '');
+                      const amount = Number(b.totalDue || 0);
+                      
+                      // Create user object for settlement (only for payments)
+                      const userObj = {
+                        uid: isPayments ? b[toField] : b[fromField],
+                        name: name
+                      };
+                      
+                      // Conditionally render settle button only for payments tab
+                      const settleButtonHtml = isPayments ? 
+                        `<button class="btn settle" data-user='${JSON.stringify(userObj)}' data-amount="${amount}" data-direction="out"><i class="fas fa-handshake"></i> Settle</button>` : '';
+                      
+                      div.innerHTML = `
+                        <div class="list-left">
+                          <div class="amount">? ${amount.toFixed(2)} <span class="muted">${directionText} ${name}</span></div>
+                          <div class="date"><i class="far fa-calendar"></i> ${fmtDate(b.createdAt)}</div>
+                        </div>
+                        <div class="list-actions">
+                          <button class="details-btn" data-bill='${JSON.stringify(b)}'><i class="fas fa-eye"></i> Details</button>
+                          ${settleButtonHtml}
+                        </div>`;
+                      
+                      // Add event listeners
+                      div.querySelector('.details-btn').addEventListener('click', (e)=>{
+                        const billData = JSON.parse(e.currentTarget.getAttribute('data-bill'));
+                        showDetails(billData);
+                      });
+                      
+                      // Add settle button event listener only if it exists (only for payments)
+                      const settleBtn = div.querySelector('.settle');
+                      if (settleBtn) {
+                        settleBtn.addEventListener('click', (e)=>{
+                          const userData = JSON.parse(e.currentTarget.getAttribute('data-user'));
+                          const amount = Number(e.currentTarget.getAttribute('data-amount'));
+                          const direction = e.currentTarget.getAttribute('data-direction');
+                          openUserSettlementModal(userData, direction, amount);
+                        });
+                      }
+                      
+                      listContainer.appendChild(div);
+                    });
+                }
+            } catch(error) {
+                console.error(`Error fetching '${title}' list:`, error);
+                listContainer.innerHTML = '<div class="muted" style="color:#ef4444; text-align:center; padding:40px; font-size:15px;">Error fetching data. Check console.</div>';
+            }
+        }
+    }
+
+    function showDetails(b){
+        const dm = document.getElementById('detailsModalBackdrop');
+        const body = document.getElementById('detailsBody');
+        body.innerHTML = `
+          <div style="display:flex; flex-direction: column; gap:16px;">
+            <div style="background: var(--bg-secondary); padding:16px; border-radius:12px; border:1px solid var(--border);">
+              <div style="display:flex; justify-content:space-between; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+                <div><strong>From:</strong> ${displayName(b.fromUserName) || '-'}</div>
+                <div><strong>To:</strong> ${displayName(b.toUserName) || '-'}</div>
+              </div>
+              <div style="margin-bottom:12px;"><strong>Item:</strong> ${b.itemName||'-'}</div>
+            </div>
+            
+            <div style="background: var(--bg-secondary); padding:16px; border-radius:12px; border:1px solid var(--border);">
+              <div style="margin-bottom:12px;"><strong style="color:var(--primary);">Bill Information</strong></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <div><strong>Bill Amount:</strong></div>
+                <div>? ${Number(b.amount||0).toFixed(2)}</div>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <div><strong>Advance Paid:</strong></div>
+                <div>? ${Number(b.advance||0).toFixed(2)}</div>
+              </div>
+            </div>
+            
+            <div style="background: var(--bg-secondary); padding:16px; border-radius:12px; border:1px solid var(--border);">
+              <div style="margin-bottom:12px;"><strong style="color:var(--primary);">Due Information</strong></div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <div><strong>Previous Due:</strong></div>
+                <div>? ${Number(b.previousDue||0).toFixed(2)}</div>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <div><strong>Current Bill Due:</strong></div>
+                <div>? ${Number(b.dueAmount || 0).toFixed(2)}</div>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-weight:700;font-size:18px; padding-top:12px; border-top:2px solid var(--border);">
+                <div><strong style="color:var(--primary);">Total Due:</strong></div>
+                <div style="color:var(--primary);">? ${Number(b.totalDue || 0).toFixed(2)}</div>
+              </div>
+            </div>
+            
+            <div style="background: var(--bg-secondary); padding:16px; border-radius:12px; border:1px solid var(--border);">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <i class="far fa-clock" style="color:var(--text-muted);"></i>
+                <span style="color:var(--text-muted);">Date: ${fmtDate(b.createdAt)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        dm.classList.add('show');
+    }
+    
+    // --- Settlement Logic ---
+    function openUserSettlementModal(targetUser, direction, amount){
+        if (amount <= 0 || !targetUser?.uid) {
+            showToast('No outstanding due to settle.');
+            return;
+        }
+
+        settleTargetUser = targetUser;
+        settleDirection = direction;
+        
+        const settleModal = document.getElementById('settleModalBackdrop');
+        const settleAmountInput = document.getElementById('settleAmount');
+        const settleDetails = document.getElementById('settleDetails');
+        const currentDueDisplay = document.getElementById('currentDueDisplay');
+        const errorDiv = document.getElementById('settleError');
+
+        errorDiv.classList.add('hidden'); // Hide previous errors
+        
+        const directionText = direction === 'out' ? 'receiving a payment from' : 'making a payment to';
+        settleDetails.innerHTML = `You are ${directionText} <strong>${displayName(targetUser.name)}</strong>.`;
+        currentDueDisplay.textContent = `? ${amount.toFixed(2)}`;
+        settleAmountInput.value = amount.toFixed(2);
+        settleAmountInput.max = amount;
+
+        settleModal.classList.add('show');
+    }
+
+    async function processUserSettlement(){
+        if(!settleTargetUser){ showToast('Error: No target user selected'); document.getElementById('settleModalBackdrop').classList.remove('show'); return; }
+
+        const settleAmountInput = document.getElementById('settleAmount');
+        const settleAmount = Number(settleAmountInput.value || 0);
+        const errorDiv = document.getElementById('settleError');
+        
+        const currentDueText = document.getElementById('currentDueDisplay').textContent.replace('? ','').trim();
+        const currentDue = Number(currentDueText || 0);
+
+        if(isNaN(settleAmount) || settleAmount <= 0) { 
+            errorDiv.textContent = 'Please enter a valid amount greater than zero.';
+            errorDiv.classList.remove('hidden');
+            return; 
+        }
+        if(settleAmount > currentDue) { 
+            errorDiv.textContent = `Settlement (? ${settleAmount.toFixed(2)}) cannot exceed net due (? ${currentDue.toFixed(2)}).`;
+            errorDiv.classList.remove('hidden');
+            return; 
+        }
+        
+        let amountToSettle = settleAmount;
+        const currentUserId = currentProfile.uid;
+        const targetUserId = settleTargetUser.uid;
+        
+        const fromId = settleDirection === 'out' ? currentUserId : targetUserId;
+        const toId = settleDirection === 'out' ? targetUserId : currentUserId;
+
+        const qs = query(collection(db,'bills'), where('fromUserId','==', fromId), where('toUserId','==', toId));
+        
+        try{
+            const snap = await getDocs(qs);
+            
+            let billsToUpdate = snap.docs
+                .map(docSnap => ({ id: docSnap.id, ...docSnap.data() }))
+                .filter(bill => Number(bill.dueAmount || 0) > 0)
+                .sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)); 
+
+            for (const bill of billsToUpdate) { 
+                if (amountToSettle <= 0) break;
+                const currentBillDue = Number(bill.dueAmount || 0);
+                const reduction = Math.min(amountToSettle, currentBillDue);
+
+                if (reduction > 0) {
+                    const newDueAmount = currentBillDue - reduction;
+                    const newTotalDue = (bill.previousDue || 0) + newDueAmount; 
+
+                    await setDoc(doc(db,'bills', bill.id), {
+                        dueAmount: newDueAmount,
+                        totalDue: newTotalDue,
+                        settlementHistory: (bill.settlementHistory || []).concat({
+                            amount: reduction,
+                            byUser: currentUserId,
+                            at: new Date()
+                        })
+                    }, { merge: true });
+                    amountToSettle -= reduction;
+                }
+            }
+            
+            showToast(`? Settled ? ${settleAmount.toFixed(2)} with ${displayName(settleTargetUser.name)}.`);
+            document.getElementById('settleModalBackdrop').classList.remove('show');
+            switchTab('home'); 
+
+        }catch(err){
+            console.error('Settlement failed:', err);
+            showToast('Settlement failed: ' + err.message);
+        }
+    }
+    
+    // --- Dashboard Setup and Rendering ---
+    async function renderDashboard(currentUser){
+      currentProfile = { uid: currentUser.uid, name: currentUser.email, email: currentUser.email, mobile:'' };
+      try {
+        const profSnap = await getDoc(doc(db,'users',currentUser.uid));
+        if(profSnap.exists()) currentProfile = profSnap.data();
+      } catch(error) {
+          console.error("Error fetching user profile:", error);
+      }
+
+      toastEl = document.getElementById('toast');
+      const billModal = document.getElementById('billModalBackdrop');
+      const detailsModal = document.getElementById('detailsModalBackdrop');
+      const detailsClose = document.getElementById('detailsClose');
+      const settleModalRebound = document.getElementById('settleModalBackdrop');
+      
+      const settleCancel = document.getElementById('settleCancel');
+      const settleSubmit = document.getElementById('settleSubmit');
+
+      settleCancel.addEventListener('click', ()=>{ settleModalRebound.classList.remove('show'); });
+      settleSubmit.addEventListener('click', processUserSettlement);
+      detailsClose.addEventListener('click', ()=> detailsModal.classList.remove('show'));
+
+      const menuBtn = document.getElementById('menuBtn');
+      const drawer = document.getElementById('sideDrawer');
+      const drawerBackdrop = document.getElementById('drawerBackdrop');
+      const drawerLogout = document.getElementById('drawerLogout');
+      const helloName = document.getElementById('helloName');
+      const helloEmail = document.getElementById('helloEmail');
+
+      helloName.textContent = displayName(currentProfile.name || currentProfile.email || 'User');
+      helloEmail.textContent = currentProfile.email ? 'Signed in as ' + currentProfile.email : '';
+
+      const openDrawer = ()=>{ drawer.classList.add('open'); drawerBackdrop.classList.add('show'); };
+      const closeDrawer = ()=>{ drawer.classList.remove('open'); drawerBackdrop.classList.remove('show'); };
+      menuBtn.addEventListener('click', openDrawer);
+      drawerBackdrop.addEventListener('click', closeDrawer);
+
+      drawerLogout.addEventListener('click', async ()=>{
+        try{ 
+          await signOut(auth); 
+          showToast('Logged out successfully');
+          window.location.href = 'login.html';
+        }catch(err){ 
+          showToast(err.message); 
+        }
+      });
+
+      const billCancel = document.getElementById('billCancel');
+      const billSubmit = document.getElementById('billSubmit');
+      const billItemName = document.getElementById('billItemName');
+      const billQty = document.getElementById('billQty');
+      const billUnitPrice = document.getElementById('billUnitPrice');
+      const billTotal = document.getElementById('billTotal');
+      const billAdvance = document.getElementById('billAdvance');
+      const billDue = document.getElementById('billDue');
+      const billPrevDue = document.getElementById('billPrevDue');
+      const billTotalDue = document.getElementById('billTotalDue');
+
+      billQty.addEventListener('input', window.recalcTotalFromQty);
+      billUnitPrice.addEventListener('input', window.recalcTotalFromQty);
+      billTotal.addEventListener('input', ()=>{ billTotal.setAttribute('data-manual','1'); window.calcDue(); });
+      billAdvance.addEventListener('input', window.calcDue);
+      billDue.addEventListener('input', window.calcTotalDue);
+
+      billCancel.addEventListener('click', ()=>{ 
+        billModal.classList.remove('show'); 
+        billTotal.removeAttribute('data-manual'); 
+      });
+      
+      billSubmit.addEventListener('click', async ()=>{
+        if(!billTargetUser?.uid){ showToast('Target user not selected'); return; }
+        if(!currentProfile?.uid){ showToast('You are not identified'); return; }
+
+        const total = billTotal.value ? Number(billTotal.value) : null;
+        if(total===null || isNaN(total) || total <= 0){ showToast('Total amount must be greater than zero.'); return; }
+        
+        const adv = billAdvance.value ? Number(billAdvance.value) : 0;
+        let due = billDue.value ? Number(billDue.value) : ( (total||0) - adv );
+        const prev = billPrevDue.value ? Number(billPrevDue.value) : 0;
+        const tDue = billTotalDue.value ? Number(billTotalDue.value) : (prev + (due||0));
+
+        const payload = {
+          fromUserId: currentProfile.uid,
+          fromUserName: currentProfile.name || currentProfile.email || '',
+          toUserId: billTargetUser.uid,
+          toUserName: billTargetUser.name || billTargetUser.email || '',
+          itemName: billItemName.value || '',
+          quantity: billQty.value ? Number(billQty.value) : null,
+          unitPrice: billUnitPrice.value ? Number(billUnitPrice.value) : null,
+          amount: total,
+          advance: isNaN(adv) ? 0 : adv,
+          dueAmount: isNaN(due) ? 0 : due,
+          previousDue: isNaN(prev) ? 0 : prev,
+          totalDue: isNaN(tDue) ? 0 : tDue,
+          createdAt: serverTimestamp()
+        };
+
+        try{
+          await addDoc(collection(db,'bills'), payload);
+          billModal.classList.remove('show');
+          showToast('? Bill created successfully');
+          switchTab('home'); 
+          document.getElementById('mobileSearch').value = ''; 
+          document.getElementById('searchResults').innerHTML = '';
+        }catch(err){ 
+          console.error("Bill creation failed:", err);
+          showToast(err.message); 
+        }
+      });
+
+      document.getElementById('searchBtn').addEventListener('click', searchUser);
+
+      switchTab('home'); // Initial tab
+
+      // --- Tabs Listeners (Definitions are now outside) ---
+      document.getElementById('tabHome').addEventListener('click',()=>switchTab('home'));
+      document.getElementById('tabPayments').addEventListener('click',()=>switchTab('payments'));
+      document.getElementById('tabBorrowing').addEventListener('click',()=>switchTab('borrowing'));
+    }
+
+    // --- Initial Auth Check ---
+    onAuthStateChanged(auth, (user)=>{
+      if(user){
+        renderDashboard(user);
+      } else {
+        // Redirect to login page if not authenticated
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
+</body>
+</html>
