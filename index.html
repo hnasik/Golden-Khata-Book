@@ -827,7 +827,7 @@
           <button class="btn gray" id="billCancel">Cancel</button>
           <button class="btn" id="billSubmit"><i class="fas fa-check"></i> Submit</button>
         </div>
-        <div class="muted" style="margin-top:16px; font-size:13px;">Total auto-calculates from quantity × unit price; Due = Total - Advance; Previous Due is auto; Total Due = Previous Due + Due.</div>
+        <div class="muted" style="margin-top:16px; font-size:13px;">Total auto-calculates from quantity Ã— unit price; Due = Total - Advance; Previous Due is auto; Total Due = Previous Due + Due.</div>
       </div>
     </div>
 
@@ -869,7 +869,7 @@
       getAuth, onAuthStateChanged, signOut
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { 
-      getFirestore, doc, getDoc, getDocs, collection, query, where, addDoc, serverTimestamp, setDoc
+      getFirestore, doc, getDoc, getDocs, collection, query, where, addDoc, serverTimestamp, setDoc, updateDoc, arrayUnion
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // --- Firebase Setup ---
@@ -979,17 +979,77 @@
     }
     
     // --- Global Functions ---
+    async function saveSearchToHistory(user) {
+      if (!currentProfile || !currentProfile.uid || !user || !user.uid) return;
+      
+      try {
+        const userDocRef = doc(db, 'users', currentProfile.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+          // Get existing search history
+          const userData = userDoc.data();
+          let searchHistory = userData.searchHistory || [];
+          
+          // Check if user already exists in history
+          searchHistory = searchHistory.filter(u => u.uid !== user.uid);
+          
+          // Add new search to the beginning
+          searchHistory.unshift({
+            name: user.name,
+            mobile: user.mobile,
+            email: user.email,
+            uid: user.uid,
+            timestamp: new Date()
+          });
+          
+          // Keep only the last 5 searches
+          searchHistory = searchHistory.slice(0, 5);
+          
+          // Update the user document
+          await updateDoc(userDocRef, { searchHistory });
+        }
+      } catch (error) {
+        console.error("Error saving search history:", error);
+      }
+    }
+    
     async function renderRecent(){
       const list = document.getElementById('recentList');
       list.innerHTML='';
-      const recent = JSON.parse(localStorage.getItem('recentSearches')||'[]');
-      recent.forEach(async r=>{
-          if (!r.uid) return; 
-          try {
-            const userSnap = await getDoc(doc(db, 'users', r.uid));
-            if(userSnap.exists()){ await renderUserCard(userSnap.data(), list, false); }
-          } catch (error) { console.error("Error fetching recent user:", error); }
-      });
+      
+      if (!currentProfile || !currentProfile.uid) {
+        list.innerHTML = '<div class="muted" style="text-align:center; padding:40px; font-size:15px;">Please log in to see recent searches.</div>';
+        return;
+      }
+      
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentProfile.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const searchHistory = userData.searchHistory || [];
+          
+          if (searchHistory.length === 0) {
+            list.innerHTML = '<div class="muted" style="text-align:center; padding:40px; font-size:15px;">No recent searches found.</div>';
+            return;
+          }
+          
+          searchHistory.forEach(async (searchItem) => {
+            if (!searchItem.uid) return; 
+            try {
+              const userSnap = await getDoc(doc(db, 'users', searchItem.uid));
+              if(userSnap.exists()){ 
+                await renderUserCard(userSnap.data(), list, false); 
+              }
+            } catch (error) { 
+              console.error("Error fetching recent user:", error); 
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching search history:", error);
+        list.innerHTML = '<div class="muted" style="text-align:center; padding:40px; font-size:15px;">Error loading recent searches.</div>';
+      }
     }
     
     async function searchUser(){
@@ -1001,7 +1061,9 @@
           const qy = query(collection(db,'users'), where('mobile','==',mobile));
           const snap = await getDocs(qy);
           if(snap.empty){ container.innerHTML = '<div class="muted" style="text-align:center; padding:40px; font-size:15px;">No user found with that mobile number.</div>'; return; }
-          snap.forEach(async docSnap=>{ await renderUserCard(docSnap.data(), container, true); });
+          snap.forEach(async docSnap=>{ 
+            await renderUserCard(docSnap.data(), container, true); 
+          });
       } catch (error) {
           console.error("Search failed:", error);
           container.innerHTML = `<div class="muted" style="color:#ef4444; text-align:center; padding:40px; font-size:15px;">Search failed. Check console for missing index link or permission errors.</div>`;
@@ -1033,9 +1095,8 @@
         }
 
         if (isSearchResult) {
-            let recent = JSON.parse(localStorage.getItem('recentSearches')||'[]');
-            recent = [{name:u.name,mobile:u.mobile,email:u.email,uid:u.uid}, ...recent.filter(r=>r.uid!==u.uid)].slice(0,5);
-            localStorage.setItem('recentSearches', JSON.stringify(recent));
+            // Save search to user's private history in Firebase
+            await saveSearchToHistory(u);
         }
 
         const card = document.createElement('div');
@@ -1043,7 +1104,7 @@
         card.innerHTML = `
           <div class="user-meta">
             <h4>${u.name||displayName(u.email)||'(no name)'}</h4>
-            <div class="muted"><i class="fas fa-phone"></i> ${u.mobile||'-'} · <i class="fas fa-envelope"></i> ${u.email||'-'}</div>
+            <div class="muted"><i class="fas fa-phone"></i> ${u.mobile||'-'} Â· <i class="fas fa-envelope"></i> ${u.email||'-'}</div>
           </div>
           <div class="right-actions">
             ${dueDisplay}
