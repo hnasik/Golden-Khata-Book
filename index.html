@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>My Khata Book - Digital Ledger </title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+        /* Diamond Blue Modern Theme */
+        --primary: #00d4ff;
+        --primary-light: #88e9ff;
+        --primary-dark: #0077be;
+        --accent: #f97316;
+        --accent-light: #fb923c;
+        --success: #00e676;
+        --success-light: #69f0ae;
+        --danger: #ff5252;
+        --danger-light: #ff8a80;
+        --warning: #f59e0b;
+        
+        --bg-primary: #001233;
+        --bg-secondary: rgba(0, 31, 77, 0.6);
+        --bg-tertiary: rgba(0, 53, 102, 0.5);
+        --bg-card: rgba(0, 41, 82, 0.4);
+        --text-primary: #ffffff;
+        --text-secondary: #d1e8ff;
+        --text-muted: #8ab4d8;
+        --border: rgba(0, 212, 255, 0.15);
+        --border-light: rgba(0, 212, 255, 0.4);
+        --shadow: rgba(0, 0, 0, 0.5);
+        --glow: rgba(0, 212, 255, 0.3);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 212, 255, 0.15) 0%, transparent 30%),
+        radial-gradient(circle at 90% 90%, rgba(0, 119, 190, 0.15) 0%, transparent 30%);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+    
+    .dashboard {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: transparent;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+    }
+    
+    .search-bar {
+      background: rgba(0, 25, 60, 0.8);
+      border-bottom: 1px solid var(--border);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 5;
+    }
+    
+    .search-row {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      align-items: center;
+    }
+    
+    .search-row input {
+      flex: 1;
+      padding: 10px 12px;
+      background: rgba(0, 20, 50, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 0;
+    }
+    
+    .search-row input::placeholder { color: var(--text-muted); font-size: 13px; }
+    
+    .search-row input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(0, 30, 70, 0.8);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+    
+    .btn {
+      padding: 10px 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border: none;
+      border-radius: 12px;
+      color: #001233;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.6s;
+    }
+    
+    .btn:hover::before { left: 100%; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 212, 255, 0.4); }
+    
+    .btn.secondary {
+      background: linear-gradient(135deg, var(--accent) 0%, #ea580c 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+    .btn.secondary:hover { box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4); }
+    
+    .btn.success {
+      background: linear-gradient(135deg, var(--success) 0%, #00b248 100%);
+      color: #003300;
+      box-shadow: 0 4px 12px rgba(0, 230, 118, 0.3);
+    }
+    .btn.success:hover { box-shadow: 0 8px 20px rgba(0, 230, 118, 0.4); }
+    
+    .btn.danger {
+      background: linear-gradient(135deg, var(--danger) 0%, #c62828 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(255, 82, 82, 0.3);
+    }
+    .btn.danger:hover { box-shadow: 0 8px 20px rgba(255, 82, 82, 0.4); }
+    
+    .btn.gray {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+    .btn.gray:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--border-light); }
+    
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px 100px;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 24px 0 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.01em;
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+    }
+    
+    .user-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .user-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-light);
+      box-shadow: 0 8px 30px rgba(0, 212, 255, 0.15);
+    }
+    
+    .user-meta { flex: 1; min-width: 0; }
+    .user-meta h4 { font-size: 17px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); letter-spacing: -0.01em; }
+    
+    .muted { color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    
+    .right-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
+    
+    .pill {
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    
+    .pill.owe-me { background: rgba(0, 230, 118, 0.1); color: var(--success); border: 1px solid rgba(0, 230, 118, 0.3); box-shadow: 0 0 10px rgba(0, 230, 118, 0.1); }
+    .pill.i-owe { background: rgba(255, 82, 82, 0.1); color: var(--danger); border: 1px solid rgba(255, 82, 82, 0.3); box-shadow: 0 0 10px rgba(255, 82, 82, 0.1); }
+    .pill.settled { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border); }
+
+    .delete-party-btn {
+      background: rgba(255, 82, 82, 0.1);
+      border: 1px solid rgba(255, 82, 82, 0.3);
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--danger);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .delete-party-btn:hover {
+      background: rgba(255, 82, 82, 0.25);
+      border-color: var(--danger);
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(255, 82, 82, 0.3);
+    }
+
+    .list-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .list-card:hover { border-color: var(--border-light); }
+    .list-left { flex: 1; min-width: 0; }
+    
+    .amount { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .date { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 18, 51, 0.8);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 8px 20px;
+      z-index: 10;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 12px 8px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    
+    .tab-btn:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); }
+    .tab-btn.active { color: var(--primary); background: rgba(0, 212, 255, 0.1); text-shadow: 0 0 10px var(--glow); }
+    .tab-btn i { font-size: 20px; }
+    .tab-btn span { font-size: 11px; font-weight: 600; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 5, 20, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 20px;
+    }
+    
+    .modal-backdrop.show { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    .modal {
+      width: 100%;
+      max-width: 520px;
+      background: linear-gradient(145deg, rgba(0, 41, 82, 0.9), rgba(0, 18, 51, 0.9));
+      border: 1px solid var(--border-light);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.1), 0 25px 50px -12px var(--shadow);
+      animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      max-height: 85vh;
+      overflow-y: auto;
+      max-width: 90vw;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .modal h3 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.01em;
+      text-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+    }
+    
+    .modal .row { display: flex; gap: 12px; margin-top: 8px; }
+    
+    .modal input {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(0, 20, 50, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin: 8px 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .modal input::placeholder { color: var(--text-muted); }
+    .modal input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(0, 30, 70, 0.8);
+      box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    }
+    
+    .modal .actions { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 41, 82, 0.9);
+      color: var(--text-primary);
+      padding: 14px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 60;
+      font-weight: 500;
+      font-size: 14px;
+      max-width: 90%;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+
+    .menu-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+    
+    .menu-btn:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--border-light); }
+    
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      width: 85%;
+      max-width: 360px;
+      background: linear-gradient(145deg, rgba(0, 31, 77, 0.95), rgba(0, 18, 51, 0.95));
+      border-right: 1px solid var(--border-light);
+      box-shadow: 10px 0 40px rgba(0, 212, 255, 0.1);
+      transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 80;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    
+    .drawer.open { left: 0; }
+    
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 5, 20, 0.6);
+      display: none;
+      z-index: 70;
+      backdrop-filter: blur(4px);
+    }
+    
+    .drawer-backdrop.show { display: block; animation: fadeIn 0.3s ease; }
+    
+    .drawer h3 { font-size: 24px; font-weight: 600; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 12px; text-shadow: 0 0 10px var(--glow); }
+    .drawer .hello { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .drawer .sub { font-size: 14px; color: var(--text-muted); }
+
+    .contact-section { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); }
+    .contact-title { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    
+    .contact-email {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .contact-email:hover { background: rgba(0, 212, 255, 0.1); border-color: var(--border-light); color: var(--primary); transform: translateY(-1px); }
+    .contact-email i { color: var(--primary); font-size: 16px; }
+
+    @media (min-width: 768px) {
+      .content { max-width: 720px; margin: 0 auto; padding: 32px 24px 100px; }
+      .right-actions { flex-direction: row; gap: 12px; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="dashboard">
+      <div class="search-bar">
+        <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
+        <div class="search-row">
+          <input id="partyNameInput" placeholder="Add new party (customer/supplier)"/>
+          <button class="btn" id="addPartyBtn"><i class="fas fa-user-plus"></i> Add</button>
+        </div>
+      </div>
+      <div class="content"><!-- Content rendered by JS --></div>
+      <div class="bottom-nav">
+        <button id="tabHome" class="tab-btn active"><i class="fas fa-users"></i> <span>Parties</span></button>
+        <button id="tabTransactions" class="tab-btn"><i class="fas fa-receipt"></i> <span>All Entries</span></button>
+      </div>
+    </div>
+
+    <div class="drawer" id="sideDrawer">
+      <h3><i class="fas fa-book"></i> Hisab Khata</h3>
+      <div class="hello">Digital Ledger by golden(cart2doors)</div>
+      <div class="sub">Track your Debit (Udhar) & Credit (Jama) easily.</div>
+      <button class="btn gray" id="clearDataBtn"><i class="fas fa-trash"></i> Clear All Data</button>
+      
+      <div class="contact-section">
+        <div class="contact-title"><i class="fas fa-headset"></i> Need Assistance?</div>
+        <a href="mailto:cart2doors@gmail.com" class="contact-email">
+          <i class="fas fa-envelope"></i> cart2doors@gmail.com
+        </a>
+      </div>
+    </div>
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    
+    <!-- Party Ledger Modal -->
+    <div class="modal-backdrop" id="ledgerModalBackdrop">
+      <div class="modal">
+        <h3><i class="fas fa-book"></i> <span id="ledgerPartyName">Ledger</span></h3>
+        <div id="ledgerBalance" class="muted" style="font-size: 16px; margin-bottom: 16px;"></div>
+        <div class="row" style="margin-bottom: 16px; flex-wrap: wrap;">
+          <button class="btn danger" id="addDebitBtn" style="flex:1; min-width: 140px;"><i class="fas fa-arrow-up"></i> Debit (Gave)</button>
+          <button class="btn success" id="addCreditBtn" style="flex:1; min-width: 140px;"><i class="fas fa-arrow-down"></i> Credit (Got)</button>
+        </div>
+        <div id="ledgerList" style="max-height: 300px; overflow-y: auto;"></div>
+        <div class="actions">
+          <button class="btn gray" id="ledgerClose">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction Entry Modal -->
+    <div class="modal-backdrop" id="txnModalBackdrop">
+      <div class="modal">
+        <h3><i class="fas fa-pen"></i> <span id="txnModalTitle">Add Entry</span></h3>
+        <div><input id="txnAmount" type="number" min="0" step="0.01" placeholder="Amount (?)"></div>
+        <div><input id="txnDesc" placeholder="Description / Item Name (Optional)"></div>
+        <div class="actions">
+          <button class="btn gray" id="txnCancel">Cancel</button>
+          <button class="btn" id="txnSubmit"><i class="fas fa-check"></i> Submit</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">Saved</div>
+  </div>
+
+  <script>
+    // --- Local Storage Setup (No Login Required, User Specific Data) ---
+    let appData = JSON.parse(localStorage.getItem('khataData')) || { parties: [], transactions: [] };
+    let currentPartyId = null;
+    let currentTxnType = null;
+
+    function saveData() {
+      localStorage.setItem('khataData', JSON.stringify(appData));
+    }
+
+    // --- Utility Functions ---
+    let toastEl = document.getElementById('toast');
+    function showToast(msg){
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      setTimeout(()=>toastEl.classList.remove('show'), 2500);
+    }
+
+    function getPartyBalance(partyId) {
+      let bal = 0;
+      appData.transactions.forEach(t => {
+        if (t.partyId === partyId) {
+          bal += (t.type === 'debit' ? t.amount : -t.amount);
+        }
+      });
+      return bal;
+    }
+
+    // --- Core Logic ---
+    function addParty() {
+      const nameInput = document.getElementById('partyNameInput');
+      const name = nameInput.value.trim();
+      if(!name) { showToast('Please enter a party name'); return; }
+      
+      appData.parties.push({ id: Date.now().toString(), name: name });
+      saveData();
+      nameInput.value = '';
+      showToast('Party added successfully!');
+      switchTab('home');
+    }
+
+    function deleteParty(partyId) {
+      const party = appData.parties.find(p => p.id === partyId);
+      if (!party) return;
+      if (!confirm(`Delete "${party.name}" and all their transactions?`)) return;
+      
+      appData.parties = appData.parties.filter(p => p.id !== partyId);
+      appData.transactions = appData.transactions.filter(t => t.partyId !== partyId);
+      saveData();
+      showToast('Party deleted successfully!');
+      switchTab('home');
+    }
+
+    function openTxnModal(partyId, type) {
+      currentPartyId = partyId;
+      currentTxnType = type;
+      document.getElementById('txnModalTitle').textContent = type === 'debit' ? 'Add Debit (You Gave)' : 'Add Credit (You Got)';
+      document.getElementById('txnAmount').value = '';
+      document.getElementById('txnDesc').value = '';
+      document.getElementById('txnModalBackdrop').classList.add('show');
+    }
+
+    function submitTxn() {
+      const amount = parseFloat(document.getElementById('txnAmount').value);
+      if(isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount'); return; }
+      
+      const desc = document.getElementById('txnDesc').value.trim();
+      appData.transactions.push({
+        id: Date.now().toString(),
+        partyId: currentPartyId,
+        type: currentTxnType,
+        amount: amount,
+        desc: desc,
+        date: new Date().toISOString()
+      });
+      saveData();
+      document.getElementById('txnModalBackdrop').classList.remove('show');
+      showToast('Entry added successfully!');
+      showLedger(currentPartyId); // Refresh ledger
+    }
+
+    function showLedger(partyId) {
+      currentPartyId = partyId;
+      const party = appData.parties.find(p => p.id === partyId);
+      if(!party) return;
+      
+      document.getElementById('ledgerPartyName').textContent = party.name;
+      
+      const bal = getPartyBalance(partyId);
+      const balText = bal > 0 ? `Given: ? ${bal.toFixed(2)}` : bal < 0 ? `Taken: ? ${Math.abs(bal).toFixed(2)}` : `Settled (? 0.00)`;
+      const balColor = bal > 0 ? 'var(--success)' : bal < 0 ? 'var(--danger)' : 'var(--text-muted)';
+      
+      document.getElementById('ledgerBalance').innerHTML = `Balance: <span style="color:${balColor}; font-weight:700; font-size:18px;">${balText}</span>`;
+      
+      const list = document.getElementById('ledgerList');
+      list.innerHTML = '';
+      const txns = appData.transactions.filter(t => t.partyId === partyId).reverse();
+      
+      if(txns.length === 0) {
+        list.innerHTML = '<div class="muted" style="text-align:center; padding:20px;">No transactions yet.</div>';
+      } else {
+        txns.forEach(t => {
+          const div = document.createElement('div');
+          div.className = 'list-card';
+          div.style.padding = '12px';
+          div.style.marginBottom = '8px';
+          div.innerHTML = `
+            <div class="list-left">
+              <div class="amount" style="color: ${t.type === 'debit' ? 'var(--danger)' : 'var(--success)'};">
+                ${t.type === 'debit' ? '-' : '+'} ? ${t.amount.toFixed(2)}
+              </div>
+              <div class="date">${t.desc || 'No description'} · ${new Date(t.date).toLocaleDateString()}</div>
+            </div>
+          `;
+          list.appendChild(div);
+        });
+      }
+      document.getElementById('ledgerModalBackdrop').classList.add('show');
+    }
+
+    // --- Tabs and Rendering ---
+    function activate(id){
+      ['tabHome','tabTransactions'].forEach(t=>document.getElementById(t)?.classList.remove('active'));
+      document.getElementById(id)?.classList.add('active');
+    }
+
+    function switchTab(tab){
+      const content = document.querySelector('.content');
+      activate(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+
+      if(tab === 'home'){
+        content.innerHTML = `
+          <div class="section-title"><i class="fas fa-users"></i> All Parties</div>
+          <div id="partiesList"></div>
+        `;
+        const list = document.getElementById('partiesList');
+        
+        if(appData.parties.length === 0) {
+          list.innerHTML = `<div class="muted" style="text-align:center; padding:40px;">No parties added yet. Use the top bar to add one.</div>`;
+        } else {
+          appData.parties.forEach(p => {
+            const bal = getPartyBalance(p.id);
+            let balDisplay = '', balClass = 'settled';
+            
+            if (bal > 0) {
+              balDisplay = `Given: ? ${bal.toFixed(2)}`;
+              balClass = 'owe-me';
+            } else if (bal < 0) {
+              balDisplay = `Taken: ? ${Math.abs(bal).toFixed(2)}`;
+              balClass = 'i-owe';
+            } else {
+              balDisplay = `Settled`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            card.innerHTML = `
+              <div class="user-meta">
+                <h4>${p.name}</h4>
+                <div class="muted"><i class="fas fa-clock"></i> Created ${new Date(parseInt(p.id)).toLocaleDateString()}</div>
+              </div>
+              <div class="right-actions">
+                <button class="delete-party-btn" data-party-id="${p.id}"><i class="fas fa-trash-alt"></i> Delete</button>
+                <span class="pill ${balClass}">${balDisplay}</span>
+              </div>
+            `;
+            card.addEventListener('click', () => showLedger(p.id));
+            card.querySelector('.delete-party-btn').addEventListener('click', (e) => {
+              e.stopPropagation();
+              deleteParty(p.id);
+            });
+            list.appendChild(card);
+          });
+        }
+      } 
+      else if(tab === 'transactions'){
+        content.innerHTML = `
+          <div class="section-title"><i class="fas fa-receipt"></i> All Transactions</div>
+          <div id="allTxnsList"></div>
+        `;
+        const list = document.getElementById('allTxnsList');
+        const txns = [...appData.transactions].reverse();
+
+        if(txns.length === 0) {
+          list.innerHTML = `<div class="muted" style="text-align:center; padding:40px;">No transactions made yet.</div>`;
+        } else {
+          txns.forEach(t => {
+            const party = appData.parties.find(p => p.id === t.partyId);
+            const partyName = party ? party.name : 'Unknown';
+            const div = document.createElement('div');
+            div.className = 'list-card';
+            div.innerHTML = `
+              <div class="list-left">
+                <div class="amount" style="color: ${t.type === 'debit' ? 'var(--danger)' : 'var(--success)'};">
+                  ${t.type === 'debit' ? 'Debit (Gave)' : 'Credit (Got)'}: ? ${t.amount.toFixed(2)}
+                </div>
+                <div class="date"><i class="fas fa-user"></i> ${partyName} · <i class="far fa-calendar"></i> ${new Date(t.date).toLocaleDateString()}</div>
+                ${t.desc ? `<div class="muted" style="margin-top:4px;">${t.desc}</div>` : ''}
+              </div>
+            `;
+            list.appendChild(div);
+          });
+        }
+      }
+    }
+
+    // --- Event Listeners Setup ---
+    document.getElementById('addPartyBtn').addEventListener('click', addParty);
+    document.getElementById('partyNameInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') addParty();
+    });
+
+    document.getElementById('addDebitBtn').addEventListener('click', () => openTxnModal(currentPartyId, 'debit'));
+    document.getElementById('addCreditBtn').addEventListener('click', () => openTxnModal(currentPartyId, 'credit'));
+    document.getElementById('txnCancel').addEventListener('click', () => document.getElementById('txnModalBackdrop').classList.remove('show'));
+    document.getElementById('txnSubmit').addEventListener('click', submitTxn);
+    document.getElementById('ledgerClose').addEventListener('click', () => document.getElementById('ledgerModalBackdrop').classList.remove('show'));
+
+    document.getElementById('tabHome').addEventListener('click', () => switchTab('home'));
+    document.getElementById('tabTransactions').addEventListener('click', () => switchTab('transactions'));
+
+    // Drawer logic
+    const drawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      drawer.classList.add('open');
+      drawerBackdrop.classList.add('show');
+    });
+    drawerBackdrop.addEventListener('click', () => {
+      drawer.classList.remove('open');
+      drawerBackdrop.classList.remove('show');
+    });
+
+    // Clear Data logic
+    document.getElementById('clearDataBtn').addEventListener('click', () => {
+      if(confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+        localStorage.removeItem('khataData');
+        appData = { parties: [], transactions: [] };
+        showToast('All data cleared');
+        switchTab('home');
+      }
+    });
+
+    // Initialize App
+    switchTab('home');
+  </script>
+</body>
+</html>
