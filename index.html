@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>My Khata Book - Digital Ledger </title>
+  <title>My Khata Book - Digital Ledger</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SheetJS Library for Excel Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-    
     :root {
-        /* Diamond Blue Modern Theme */
         --primary: #00d4ff;
         --primary-light: #88e9ff;
         --primary-dark: #0077be;
@@ -89,8 +89,8 @@
     }
     
     .search-row input {
-      flex: 1;
-      padding: 10px 12px;
+      width: 100%;
+      padding: 12px 16px;
       background: rgba(0, 20, 50, 0.6);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -98,10 +98,9 @@
       font-weight: 500;
       color: var(--text-primary);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      min-width: 0;
     }
     
-    .search-row input::placeholder { color: var(--text-muted); font-size: 13px; }
+    .search-row input::placeholder { color: var(--text-muted); font-size: 14px; }
     
     .search-row input:focus {
       outline: none;
@@ -193,6 +192,28 @@
       text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
     }
     
+    .summary-card {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 41, 82, 0.6) 100%);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .summary-item { display: flex; flex-direction: column; }
+    .summary-label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .summary-value { font-size: 18px; font-weight: 700; }
+    .summary-net { 
+      grid-column: span 2; 
+      margin-top: 12px; 
+      padding-top: 12px; 
+      border-top: 1px solid var(--border);
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+    }
+    
     .user-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -217,9 +238,9 @@
     }
     
     .user-meta { flex: 1; min-width: 0; }
-    .user-meta h4 { font-size: 17px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); letter-spacing: -0.01em; }
+    .user-meta h4 { font-size: 17px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;}
     
-    .muted { color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 8px; }
+    .muted { color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 8px; margin-top: 2px;}
     
     .right-actions { display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }
     
@@ -237,28 +258,29 @@
     .pill.owe-me { background: rgba(0, 230, 118, 0.1); color: var(--success); border: 1px solid rgba(0, 230, 118, 0.3); box-shadow: 0 0 10px rgba(0, 230, 118, 0.1); }
     .pill.i-owe { background: rgba(255, 82, 82, 0.1); color: var(--danger); border: 1px solid rgba(255, 82, 82, 0.3); box-shadow: 0 0 10px rgba(255, 82, 82, 0.1); }
     .pill.settled { background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--border); }
+    .pill.due { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.4); }
 
-    .delete-party-btn {
-      background: rgba(255, 82, 82, 0.1);
-      border: 1px solid rgba(255, 82, 82, 0.3);
-      border-radius: 10px;
-      padding: 6px 12px;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--danger);
+    .category-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--primary-light);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .small-action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
+      padding: 4px;
+      font-size: 14px;
+      transition: color 0.2s;
     }
-    .delete-party-btn:hover {
-      background: rgba(255, 82, 82, 0.25);
-      border-color: var(--danger);
-      transform: scale(1.05);
-      box-shadow: 0 0 12px rgba(255, 82, 82, 0.3);
-    }
+    .small-action-btn:hover { color: var(--primary); }
+    .small-action-btn.del:hover { color: var(--danger); }
 
     .list-card {
       background: var(--bg-card);
@@ -277,6 +299,7 @@
     
     .list-card:hover { border-color: var(--border-light); }
     .list-left { flex: 1; min-width: 0; }
+    .txn-actions { display: flex; gap: 8px; }
     
     .amount { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
     .date { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
@@ -344,7 +367,6 @@
       animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       max-height: 85vh;
       overflow-y: auto;
-      max-width: 90vw;
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
     }
@@ -366,9 +388,11 @@
       text-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
     }
     
-    .modal .row { display: flex; gap: 12px; margin-top: 8px; }
+    .modal .row { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;}
+    .modal .form-group { margin-bottom: 8px; width: 100%;}
+    .modal label { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; display: block; padding-left: 4px;}
     
-    .modal input {
+    .modal input, .modal select {
       width: 100%;
       padding: 14px 18px;
       background: rgba(0, 20, 50, 0.5);
@@ -377,12 +401,11 @@
       font-size: 15px;
       font-weight: 500;
       color: var(--text-primary);
-      margin: 8px 0;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .modal input::placeholder { color: var(--text-muted); }
-    .modal input:focus {
+    .modal input:focus, .modal select:focus {
       outline: none;
       border-color: var(--primary);
       background: rgba(0, 30, 70, 0.8);
@@ -444,7 +467,7 @@
       padding: 32px 24px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 16px;
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
     }
@@ -464,7 +487,7 @@
     
     .drawer h3 { font-size: 24px; font-weight: 600; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 12px; text-shadow: 0 0 10px var(--glow); }
     .drawer .hello { font-size: 18px; font-weight: 600; color: var(--text-primary); }
-    .drawer .sub { font-size: 14px; color: var(--text-muted); }
+    .drawer .sub { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
 
     .contact-section { margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border); }
     .contact-title { font-size: 16px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
@@ -487,25 +510,147 @@
     .contact-email:hover { background: rgba(0, 212, 255, 0.1); border-color: var(--border-light); color: var(--primary); transform: translateY(-1px); }
     .contact-email i { color: var(--primary); font-size: 16px; }
 
+    /* EMI Styles */
+    .emi-box {
+      width: calc(50% - 6px);
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .emi-box.paid {
+      background: rgba(0, 230, 118, 0.15);
+      border: 1px solid var(--success);
+      color: var(--success);
+      cursor: default;
+    }
+    .emi-box.partial {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid var(--warning);
+      color: var(--warning);
+    }
+    .emi-box.unpaid {
+      background: rgba(255, 82, 82, 0.15);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+    .emi-box.unpaid:hover, .emi-box.partial:hover { transform: scale(1.02); box-shadow: 0 0 12px rgba(255, 82, 82, 0.3); }
+    .emi-box .emi-num { font-size: 18px; font-weight: 700; }
+    .emi-box .emi-status { font-size: 12px; font-weight: 600; text-transform: uppercase; }
+    .emi-box .emi-amt { font-size: 12px; opacity: 0.8; }
+    .emi-box .undo-btn {
+      margin-top: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .emi-box .undo-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
     @media (min-width: 768px) {
       .content { max-width: 720px; margin: 0 auto; padding: 32px 24px 100px; }
       .right-actions { flex-direction: row; gap: 12px; align-items: center; }
+      .emi-box { width: calc(33.33% - 8px); }
     }
-  </style>
+  
+    /* Online-only app protection */
+    html:not(.internet-ok) #app {
+      display: none !important;
+    }
+
+    #offlineScreen {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      padding: 24px;
+      background: #001233;
+      color: #ffffff;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+
+    #offlineScreen .offline-card {
+      width: min(420px, 100%);
+    }
+
+    #offlineScreen .offline-icon {
+      font-size: 58px;
+      margin-bottom: 18px;
+    }
+
+    #offlineScreen h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+
+    #offlineScreen p {
+      margin: 0 auto 22px;
+      color: #b8c7d9;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    #offlineScreen button {
+      padding: 12px 24px;
+      border: 0;
+      border-radius: 10px;
+      background: #00d4ff;
+      color: #001233;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    #offlineScreen .offline-status {
+      margin-top: 14px;
+      min-height: 20px;
+      color: #88e9ff;
+      font-size: 13px;
+    }
+
+</style>
 </head>
 <body>
+
+  <div id="offlineScreen">
+    <div class="offline-card">
+      <div class="offline-icon">📡</div>
+      <h2>Internet Connection Required</h2>
+      <p>
+        Please connect to Wi-Fi or Mobile Internet to use GoldenKhataBook.
+      </p>
+      <button type="button" id="retryInternetBtn">Try Again</button>
+      <div id="offlineStatus" class="offline-status"></div>
+    </div>
+  </div>
+
   <div id="app">
     <div class="dashboard">
       <div class="search-bar">
         <button class="menu-btn" id="menuBtn"><i class="fas fa-bars"></i></button>
         <div class="search-row">
-          <input id="partyNameInput" placeholder="Add new party (customer/supplier)"/>
-          <button class="btn" id="addPartyBtn"><i class="fas fa-user-plus"></i> Add</button>
+          <input id="searchPartyInput" placeholder="Search parties by name..."/>
         </div>
       </div>
       <div class="content"><!-- Content rendered by JS --></div>
       <div class="bottom-nav">
         <button id="tabHome" class="tab-btn active"><i class="fas fa-users"></i> <span>Parties</span></button>
+        <button id="tabEmi" class="tab-btn"><i class="fas fa-money-check-alt"></i> <span>EMI</span></button>
         <button id="tabTransactions" class="tab-btn"><i class="fas fa-receipt"></i> <span>All Entries</span></button>
       </div>
     </div>
@@ -514,7 +659,9 @@
       <h3><i class="fas fa-book"></i> Hisab Khata</h3>
       <div class="hello">Digital Ledger by golden(cart2doors)</div>
       <div class="sub">Track your Debit (Udhar) & Credit (Jama) easily.</div>
-      <button class="btn gray" id="clearDataBtn"><i class="fas fa-trash"></i> Clear All Data</button>
+      
+      <button class="btn gray" id="exportDataBtn"><i class="fas fa-file-excel"></i> Export to Excel</button>
+      <button class="btn danger" id="clearDataBtn"><i class="fas fa-trash"></i> Clear All Data</button>
       
       <div class="contact-section">
         <div class="contact-title"><i class="fas fa-headset"></i> Need Assistance?</div>
@@ -525,12 +672,54 @@
     </div>
     <div class="drawer-backdrop" id="drawerBackdrop"></div>
     
+    <!-- Add Party Modal -->
+    <div class="modal-backdrop" id="partyModalBackdrop">
+      <div class="modal">
+        <h3><i class="fas fa-user-plus"></i> Add New Party</h3>
+        <div class="form-group">
+          <label>Customer / Supplier Name</label>
+          <input id="partyNameInput" placeholder="e.g. Rahul Kumar">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="partyCategoryInput">
+            <option value="General">General</option>
+            <option value="Retail">Retail</option>
+            <option value="Wholesale">Wholesale</option>
+            <option value="Friend">Friend</option>
+            <option value="Family">Family</option>
+          </select>
+        </div>
+        
+        <!-- ADDED: Amount & Type Dropdown for Initial Entry -->
+        <div class="row" style="margin-bottom: 8px;">
+          <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+            <label>Initial Amount (₹)</label>
+            <input id="partyInitialAmount" type="number" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+            <label>Type</label>
+            <select id="partyInitialType">
+              <option value="none">None</option>
+              <option value="debit">Debit (Gave)</option>
+              <option value="credit">Credit (Take)</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="actions">
+          <button class="btn gray" id="partyCancel">Cancel</button>
+          <button class="btn" id="partySubmit"><i class="fas fa-check"></i> Add Party</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Party Ledger Modal -->
     <div class="modal-backdrop" id="ledgerModalBackdrop">
       <div class="modal">
         <h3><i class="fas fa-book"></i> <span id="ledgerPartyName">Ledger</span></h3>
         <div id="ledgerBalance" class="muted" style="font-size: 16px; margin-bottom: 16px;"></div>
-        <div class="row" style="margin-bottom: 16px; flex-wrap: wrap;">
+        <div class="row" style="margin-bottom: 16px;">
           <button class="btn danger" id="addDebitBtn" style="flex:1; min-width: 140px;"><i class="fas fa-arrow-up"></i> Debit (Gave)</button>
           <button class="btn success" id="addCreditBtn" style="flex:1; min-width: 140px;"><i class="fas fa-arrow-down"></i> Credit (Got)</button>
         </div>
@@ -545,8 +734,18 @@
     <div class="modal-backdrop" id="txnModalBackdrop">
       <div class="modal">
         <h3><i class="fas fa-pen"></i> <span id="txnModalTitle">Add Entry</span></h3>
-        <div><input id="txnAmount" type="number" min="0" step="0.01" placeholder="Amount (?)"></div>
-        <div><input id="txnDesc" placeholder="Description / Item Name (Optional)"></div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input id="txnAmount" type="number" min="0" step="0.01" placeholder="e.g. 500">
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input id="txnDate" type="date">
+        </div>
+        <div class="form-group">
+          <label>Description / Item Name (Optional)</label>
+          <input id="txnDesc" placeholder="e.g. Rice 5kg">
+        </div>
         <div class="actions">
           <button class="btn gray" id="txnCancel">Cancel</button>
           <button class="btn" id="txnSubmit"><i class="fas fa-check"></i> Submit</button>
@@ -554,14 +753,159 @@
       </div>
     </div>
 
+    <!-- Create EMI Modal -->
+    <div class="modal-backdrop" id="emiModalBackdrop">
+      <div class="modal">
+        <h3><i class="fas fa-money-check-alt"></i> Create EMI Plan</h3>
+        <div class="form-group">
+          <label>Customer Name</label>
+          <input id="emiPartyName" placeholder="e.g. Rahul Kumar">
+        </div>
+        <div class="form-group">
+          <label>Amount per EMI (₹)</label>
+          <input id="emiAmount" type="number" min="0" step="0.01" placeholder="e.g. 2000">
+        </div>
+        <div class="form-group">
+          <label>Total EMIs (e.g., 4, 6, 12)</label>
+          <input id="emiCount" type="number" min="1" step="1" placeholder="e.g. 6">
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input id="emiStartDate" type="date">
+        </div>
+        <div class="actions">
+          <button class="btn gray" id="emiCancel">Cancel</button>
+          <button class="btn" id="emiSubmit"><i class="fas fa-check"></i> Create</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMI Details Modal -->
+    <div class="modal-backdrop" id="emiDetailsBackdrop">
+      <div class="modal">
+        <h3><i class="fas fa-list-ul"></i> <span id="emiDetailsTitle">EMI Details</span></h3>
+        <div id="emiDetailsList" style="display:flex; flex-wrap:wrap; gap:12px; margin-top: 16px;"></div>
+        <div class="actions">
+          <button class="btn gray" id="emiDetailsClose">Close</button>
+        </div>
+      </div>
+    </div>
+
     <div class="toast" id="toast">Saved</div>
   </div>
 
+
+  <script type="module">
+    import { Network } from '@capacitor/network';
+
+    const offlineScreen = document.getElementById('offlineScreen');
+    const offlineStatus = document.getElementById('offlineStatus');
+    const retryButton = document.getElementById('retryInternetBtn');
+
+    let checkingInternet = false;
+
+    function showOfflineScreen(message = 'No Internet connection detected.') {
+      document.documentElement.classList.remove('internet-ok');
+      offlineScreen.style.display = 'flex';
+      offlineStatus.textContent = message;
+    }
+
+    function showApp() {
+      document.documentElement.classList.add('internet-ok');
+      offlineScreen.style.display = 'none';
+      offlineStatus.textContent = '';
+    }
+
+    async function hasInternetAccess() {
+      if (checkingInternet) return false;
+      checkingInternet = true;
+
+      try {
+        const status = await Network.getStatus();
+
+        if (!status.connected) {
+          return false;
+        }
+
+        // Confirm that the device can actually reach the Internet.
+        // no-cors is used because this is only a connectivity check.
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
+        try {
+          await fetch('https://www.google.com/generate_204', {
+            method: 'GET',
+            mode: 'no-cors',
+            cache: 'no-store',
+            signal: controller.signal
+          });
+          return true;
+        } finally {
+          clearTimeout(timeout);
+        }
+      } catch (error) {
+        return false;
+      } finally {
+        checkingInternet = false;
+      }
+    }
+
+    async function checkInternet() {
+      showOfflineScreen('Checking Internet connection...');
+
+      const online = await hasInternetAccess();
+
+      if (online) {
+        showApp();
+      } else {
+        showOfflineScreen('Please turn on Wi-Fi or Mobile Internet.');
+      }
+    }
+
+    window.checkInternet = checkInternet;
+
+    retryButton.addEventListener('click', checkInternet);
+
+    Network.addListener('networkStatusChange', async (status) => {
+      if (status.connected) {
+        await checkInternet();
+      } else {
+        showOfflineScreen('Internet connection lost.');
+      }
+    });
+
+    window.addEventListener('online', checkInternet);
+    window.addEventListener('offline', () => {
+      showOfflineScreen('Internet connection lost.');
+    });
+
+    // Check before allowing the app UI to become visible.
+    checkInternet();
+  </script>
+
   <script>
-    // --- Local Storage Setup (No Login Required, User Specific Data) ---
-    let appData = JSON.parse(localStorage.getItem('khataData')) || { parties: [], transactions: [] };
+    // --- Local Storage Setup ---
+    let appData = JSON.parse(localStorage.getItem('khataData')) || { parties: [], transactions: [], emis: [] };
+    
+    // Data Migration / Fallbacks for old data structures
+    if(!appData.emis) appData.emis = [];
+    appData.parties.forEach(p => { if(!p.category) p.category = 'General'; });
+    appData.transactions.forEach(t => { if(!t.date) t.date = new Date().toISOString(); });
+    appData.emis.forEach(emi => {
+      if(!emi.startDate) emi.startDate = new Date(parseInt(emi.id)).toISOString();
+      emi.emis.forEach(e => {
+        if(typeof e.paid === 'boolean') {
+          let paidAmt = e.paid ? emi.amountPerEmi : 0;
+          e.paidAmount = paidAmt;
+          delete e.paid;
+          delete e.paidDate;
+        }
+      });
+    });
+
     let currentPartyId = null;
     let currentTxnType = null;
+    let editingTxnId = null;
 
     function saveData() {
       localStorage.setItem('khataData', JSON.stringify(appData));
@@ -585,15 +929,47 @@
       return bal;
     }
 
-    // --- Core Logic ---
+    // --- Core Party Logic ---
+    function openPartyModal() {
+      document.getElementById('partyNameInput').value = '';
+      document.getElementById('partyCategoryInput').value = 'General';
+      document.getElementById('partyInitialAmount').value = '';
+      document.getElementById('partyInitialType').value = 'none';
+      document.getElementById('partyModalBackdrop').classList.add('show');
+    }
+
     function addParty() {
       const nameInput = document.getElementById('partyNameInput');
+      const catInput = document.getElementById('partyCategoryInput');
+      const amountInput = document.getElementById('partyInitialAmount');
+      const typeInput = document.getElementById('partyInitialType');
+      
       const name = nameInput.value.trim();
       if(!name) { showToast('Please enter a party name'); return; }
       
-      appData.parties.push({ id: Date.now().toString(), name: name });
+      const newPartyId = Date.now().toString();
+      appData.parties.push({ 
+        id: newPartyId, 
+        name: name,
+        category: catInput.value 
+      });
+
+      // Handle initial transaction amount if provided
+      const amount = parseFloat(amountInput.value);
+      const type = typeInput.value;
+      if(!isNaN(amount) && amount > 0 && (type === 'debit' || type === 'credit')) {
+        appData.transactions.push({
+          id: Date.now().toString() + '_txn',
+          partyId: newPartyId,
+          type: type,
+          amount: amount,
+          desc: 'Initial Entry',
+          date: new Date().toISOString()
+        });
+      }
+
       saveData();
-      nameInput.value = '';
+      document.getElementById('partyModalBackdrop').classList.remove('show');
       showToast('Party added successfully!');
       switchTab('home');
     }
@@ -605,17 +981,47 @@
       
       appData.parties = appData.parties.filter(p => p.id !== partyId);
       appData.transactions = appData.transactions.filter(t => t.partyId !== partyId);
+      appData.emis = appData.emis.filter(e => e.partyId !== partyId);
       saveData();
       showToast('Party deleted successfully!');
       switchTab('home');
     }
 
-    function openTxnModal(partyId, type) {
+    function editPartyName(partyId) {
+      const party = appData.parties.find(p => p.id === partyId);
+      if(!party) return;
+      const newName = prompt("Edit Party Name:", party.name);
+      if(newName && newName.trim() !== '') {
+        party.name = newName.trim();
+        appData.emis.forEach(emi => {
+          if(emi.partyId === partyId) emi.partyName = newName.trim();
+        });
+        saveData();
+        showToast('Name updated!');
+        switchTab('home');
+      }
+    }
+
+    function openTxnModal(partyId, type, txnId = null) {
       currentPartyId = partyId;
       currentTxnType = type;
-      document.getElementById('txnModalTitle').textContent = type === 'debit' ? 'Add Debit (You Gave)' : 'Add Credit (You Got)';
-      document.getElementById('txnAmount').value = '';
-      document.getElementById('txnDesc').value = '';
+      editingTxnId = txnId;
+      
+      document.getElementById('txnModalTitle').textContent = type === 'debit' ? (txnId ? 'Edit Debit' : 'Add Debit (You Gave)') : (txnId ? 'Edit Credit' : 'Add Credit (You Got)');
+      
+      if(txnId) {
+        const txn = appData.transactions.find(t => t.id === txnId);
+        if(txn) {
+          document.getElementById('txnAmount').value = txn.amount;
+          document.getElementById('txnDesc').value = txn.desc || '';
+          document.getElementById('txnDate').value = txn.date.split('T')[0];
+        }
+      } else {
+        document.getElementById('txnAmount').value = '';
+        document.getElementById('txnDesc').value = '';
+        document.getElementById('txnDate').value = new Date().toISOString().split('T')[0];
+      }
+      
       document.getElementById('txnModalBackdrop').classList.add('show');
     }
 
@@ -624,18 +1030,41 @@
       if(isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount'); return; }
       
       const desc = document.getElementById('txnDesc').value.trim();
-      appData.transactions.push({
-        id: Date.now().toString(),
-        partyId: currentPartyId,
-        type: currentTxnType,
-        amount: amount,
-        desc: desc,
-        date: new Date().toISOString()
-      });
+      const dateVal = document.getElementById('txnDate').value;
+      const finalDate = dateVal ? new Date(dateVal).toISOString() : new Date().toISOString();
+      
+      if(editingTxnId) {
+        const txn = appData.transactions.find(t => t.id === editingTxnId);
+        if(txn) {
+          txn.amount = amount;
+          txn.desc = desc;
+          txn.date = finalDate;
+        }
+        showToast('Entry updated successfully!');
+      } else {
+        appData.transactions.push({
+          id: Date.now().toString(),
+          partyId: currentPartyId,
+          type: currentTxnType,
+          amount: amount,
+          desc: desc,
+          date: finalDate
+        });
+        showToast('Entry added successfully!');
+      }
+      
       saveData();
       document.getElementById('txnModalBackdrop').classList.remove('show');
-      showToast('Entry added successfully!');
-      showLedger(currentPartyId); // Refresh ledger
+      editingTxnId = null;
+      showLedger(currentPartyId);
+    }
+
+    function deleteTxn(txnId) {
+      if(!confirm("Delete this transaction?")) return;
+      appData.transactions = appData.transactions.filter(t => t.id !== txnId);
+      saveData();
+      showToast('Transaction deleted');
+      showLedger(currentPartyId);
     }
 
     function showLedger(partyId) {
@@ -646,7 +1075,7 @@
       document.getElementById('ledgerPartyName').textContent = party.name;
       
       const bal = getPartyBalance(partyId);
-      const balText = bal > 0 ? `Given: ? ${bal.toFixed(2)}` : bal < 0 ? `Taken: ? ${Math.abs(bal).toFixed(2)}` : `Settled (? 0.00)`;
+      const balText = bal > 0 ? `They will give: ₹ ${bal.toFixed(2)}` : bal < 0 ? `You will get: ₹ ${Math.abs(bal).toFixed(2)}` : `Settled (₹ 0.00)`;
       const balColor = bal > 0 ? 'var(--success)' : bal < 0 ? 'var(--danger)' : 'var(--text-muted)';
       
       document.getElementById('ledgerBalance').innerHTML = `Balance: <span style="color:${balColor}; font-weight:700; font-size:18px;">${balText}</span>`;
@@ -666,21 +1095,199 @@
           div.innerHTML = `
             <div class="list-left">
               <div class="amount" style="color: ${t.type === 'debit' ? 'var(--danger)' : 'var(--success)'};">
-                ${t.type === 'debit' ? '-' : '+'} ? ${t.amount.toFixed(2)}
+                ${t.type === 'debit' ? '-' : '+'} ₹ ${t.amount.toFixed(2)}
               </div>
-              <div class="date">${t.desc || 'No description'} � ${new Date(t.date).toLocaleDateString()}</div>
+              <div class="date">${t.desc || 'No description'} · ${new Date(t.date).toLocaleDateString()}</div>
+            </div>
+            <div class="txn-actions">
+              <button class="small-action-btn edit-txn"><i class="fas fa-edit"></i></button>
+              <button class="small-action-btn del del-txn"><i class="fas fa-trash"></i></button>
             </div>
           `;
+          div.querySelector('.edit-txn').addEventListener('click', () => openTxnModal(partyId, t.type, t.id));
+          div.querySelector('.del-txn').addEventListener('click', () => deleteTxn(t.id));
           list.appendChild(div);
         });
       }
       document.getElementById('ledgerModalBackdrop').classList.add('show');
     }
 
+    // --- EMI Logic ---
+    function openEmiModal() {
+      document.getElementById('emiPartyName').value = '';
+      document.getElementById('emiAmount').value = '';
+      document.getElementById('emiCount').value = '';
+      document.getElementById('emiStartDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('emiModalBackdrop').classList.add('show');
+    }
+
+    function submitEmi() {
+      const name = document.getElementById('emiPartyName').value.trim();
+      const amount = parseFloat(document.getElementById('emiAmount').value);
+      const count = parseInt(document.getElementById('emiCount').value);
+      const startDate = document.getElementById('emiStartDate').value;
+      
+      if(!name || isNaN(amount) || amount <= 0 || isNaN(count) || count <= 0 || !startDate) {
+        showToast('Please fill all fields correctly');
+        return;
+      }
+      
+      let party = appData.parties.find(p => p.name.toLowerCase() === name.toLowerCase());
+      if(!party) {
+        party = { id: Date.now().toString(), name: name, category: 'General' };
+        appData.parties.push(party);
+      }
+      
+      const emisArray = [];
+      for(let i=1; i<=count; i++) {
+        emisArray.push({ index: i, paidAmount: 0 });
+      }
+      
+      appData.emis.push({
+        id: Date.now().toString() + '_emi',
+        partyId: party.id,
+        partyName: party.name,
+        amountPerEmi: amount,
+        totalEmis: count,
+        emis: emisArray,
+        startDate: new Date(startDate).toISOString()
+      });
+      
+      saveData();
+      document.getElementById('emiModalBackdrop').classList.remove('show');
+      showToast('EMI plan created successfully!');
+      switchTab('emi');
+    }
+
+    function deleteEmi(emiId) {
+      const emi = appData.emis.find(e => e.id === emiId);
+      if (!emi) return;
+      
+      const paidCount = emi.emis.filter(e => e.paidAmount >= emi.amountPerEmi).length;
+      if (paidCount !== emi.totalEmis) {
+        showToast('Cannot delete: Complete all EMIs first!');
+        return;
+      }
+      
+      if (!confirm(`Delete completed EMI plan for "${emi.partyName}"?`)) return;
+      
+      appData.emis = appData.emis.filter(e => e.id !== emiId);
+      saveData();
+      showToast('Completed EMI plan deleted!');
+      switchTab('emi');
+    }
+
+    function showEmiDetails(emiId) {
+      const emi = appData.emis.find(e => e.id === emiId);
+      if(!emi) return;
+      
+      document.getElementById('emiDetailsTitle').textContent = `${emi.partyName} - ₹ ${emi.amountPerEmi}/EMI`;
+      const list = document.getElementById('emiDetailsList');
+      list.innerHTML = '';
+      
+      emi.emis.forEach(e => {
+        const isFullyPaid = e.paidAmount >= emi.amountPerEmi;
+        const isPartial = e.paidAmount > 0 && e.paidAmount < emi.amountPerEmi;
+        const statusClass = isFullyPaid ? 'paid' : (isPartial ? 'partial' : 'unpaid');
+        
+        const box = document.createElement('div');
+        box.className = `emi-box ${statusClass}`;
+        box.innerHTML = `
+          <div class="emi-num">EMI ${e.index}</div>
+          <div class="emi-amt">₹${e.paidAmount} / ₹${emi.amountPerEmi}</div>
+          <div class="emi-status">${isFullyPaid ? 'Paid' : (isPartial ? 'Partial' : 'Unpaid')}</div>
+          ${isFullyPaid || isPartial ? `<button class="undo-btn"><i class="fas fa-undo"></i> Reset</button>` : ''}
+        `;
+        
+        if(!isFullyPaid) {
+          box.addEventListener('click', () => {
+            const remaining = emi.amountPerEmi - e.paidAmount;
+            const input = prompt(`Enter amount paid for EMI ${e.index} (Max: ₹${remaining})`, remaining);
+            if(input !== null) {
+              let paid = parseFloat(input);
+              if(isNaN(paid) || paid <= 0) { showToast('Invalid amount'); return; }
+              if(paid > remaining) { showToast('Amount exceeds remaining!'); return; }
+              
+              e.paidAmount += paid;
+              saveData();
+              showToast(`₹${paid} added to EMI ${e.index}`);
+              showEmiDetails(emiId);
+            }
+          });
+        } else {
+          box.querySelector('.undo-btn').addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            e.paidAmount = 0;
+            saveData();
+            showToast(`EMI ${e.index} reset!`);
+            showEmiDetails(emiId);
+          });
+        }
+        
+        list.appendChild(box);
+      });
+      
+      document.getElementById('emiDetailsBackdrop').classList.add('show');
+    }
+
     // --- Tabs and Rendering ---
     function activate(id){
-      ['tabHome','tabTransactions'].forEach(t=>document.getElementById(t)?.classList.remove('active'));
+      ['tabHome','tabTransactions','tabEmi'].forEach(t=>document.getElementById(t)?.classList.remove('active'));
       document.getElementById(id)?.classList.add('active');
+    }
+
+    function renderPartiesList(query = '') {
+      const list = document.getElementById('partiesList');
+      if(!list) return;
+      
+      list.innerHTML = '';
+      const filteredParties = appData.parties.filter(p => p.name.toLowerCase().includes(query));
+
+      if(filteredParties.length === 0) {
+        list.innerHTML = `<div class="muted" style="text-align:center; padding:40px;">${query ? 'No parties found matching your search.' : 'No parties added yet. Click the Add button to create one.'}</div>`;
+        return;
+      }
+
+      filteredParties.forEach(p => {
+        const bal = getPartyBalance(p.id);
+        let balDisplay = '', balClass = 'settled';
+        
+        if (bal > 0) {
+          balDisplay = `Given: ₹ ${bal.toFixed(2)}`;
+          balClass = 'owe-me';
+        } else if (bal < 0) {
+          balDisplay = `Taken: ₹ ${Math.abs(bal).toFixed(2)}`;
+          balClass = 'i-owe';
+        } else {
+          balDisplay = `Settled`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        card.innerHTML = `
+          <div class="user-meta">
+            <h4>${p.name} <span class="category-badge">${p.category}</span></h4>
+            <div class="muted"><i class="fas fa-clock"></i> Created ${new Date(parseInt(p.id)).toLocaleDateString()}</div>
+          </div>
+          <div class="right-actions">
+            <div style="display:flex; gap:8px; margin-bottom:5px;">
+              <button class="small-action-btn edit-party" data-party-id="${p.id}"><i class="fas fa-edit"></i></button>
+              <button class="small-action-btn del delete-party-btn" data-party-id="${p.id}"><i class="fas fa-trash"></i></button>
+            </div>
+            <span class="pill ${balClass}">${balDisplay}</span>
+          </div>
+        `;
+        card.addEventListener('click', () => showLedger(p.id));
+        card.querySelector('.edit-party').addEventListener('click', (e) => {
+          e.stopPropagation();
+          editPartyName(p.id);
+        });
+        card.querySelector('.delete-party-btn').addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteParty(p.id);
+        });
+        list.appendChild(card);
+      });
     }
 
     function switchTab(tab){
@@ -688,57 +1295,114 @@
       activate(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
 
       if(tab === 'home'){
+        let totalGet = 0, totalGive = 0;
+        appData.transactions.forEach(t => {
+          if(t.type === 'debit') totalGet += t.amount;
+          else totalGive += t.amount;
+        });
+        const netBal = totalGet - totalGive;
+        
         content.innerHTML = `
-          <div class="section-title"><i class="fas fa-users"></i> All Parties</div>
+          <div class="summary-card">
+            <div class="summary-grid">
+              <div class="summary-item">
+                <span class="summary-label">You'll Get</span>
+                <span class="summary-value" style="color: var(--success);">₹ ${totalGet.toFixed(2)}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">You'll Give</span>
+                <span class="summary-value" style="color: var(--danger);">₹ ${totalGive.toFixed(2)}</span>
+              </div>
+              <div class="summary-net">
+                <span class="summary-label" style="margin:0;">Net Balance</span>
+                <span class="summary-value" style="color: ${netBal >= 0 ? 'var(--success)' : 'var(--danger)'};">
+                  ${netBal >= 0 ? '+' : '-'} ₹ ${Math.abs(netBal).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="section-title">
+            <i class="fas fa-users"></i> All Parties
+            <button class="btn" style="margin-left:auto; padding: 8px 14px;" id="addPartyBtnTop"><i class="fas fa-plus"></i> Add</button>
+          </div>
           <div id="partiesList"></div>
         `;
-        const list = document.getElementById('partiesList');
         
-        if(appData.parties.length === 0) {
-          list.innerHTML = `<div class="muted" style="text-align:center; padding:40px;">No parties added yet. Use the top bar to add one.</div>`;
+        document.getElementById('addPartyBtnTop').addEventListener('click', openPartyModal);
+        
+        const currentSearchQuery = document.getElementById('searchPartyInput').value.toLowerCase().trim();
+        renderPartiesList(currentSearchQuery);
+      } 
+      else if(tab === 'emi'){
+        content.innerHTML = `
+          <div class="section-title">
+            <i class="fas fa-money-check-alt"></i> EMI Plans
+            <button class="btn" style="margin-left:auto; padding: 8px 14px;" id="addEmiBtnTop"><i class="fas fa-plus"></i> Add</button>
+          </div>
+          <div id="emiList"></div>
+        `;
+        document.getElementById('addEmiBtnTop').addEventListener('click', openEmiModal);
+        
+        const list = document.getElementById('emiList');
+        if(appData.emis.length === 0) {
+          list.innerHTML = `<div class="muted" style="text-align:center; padding:40px;">No EMI plans yet. Click 'Add' to create one.</div>`;
         } else {
-          appData.parties.forEach(p => {
-            const bal = getPartyBalance(p.id);
-            let balDisplay = '', balClass = 'settled';
+          const today = new Date();
+          today.setHours(0,0,0,0);
+
+          appData.emis.forEach(emi => {
+            const paidCount = emi.emis.filter(e => e.paidAmount >= emi.amountPerEmi).length;
+            const isCompleted = (paidCount === emi.totalEmis);
             
-            if (bal > 0) {
-              balDisplay = `Given: ? ${bal.toFixed(2)}`;
-              balClass = 'owe-me';
-            } else if (bal < 0) {
-              balDisplay = `Taken: ? ${Math.abs(bal).toFixed(2)}`;
-              balClass = 'i-owe';
-            } else {
-              balDisplay = `Settled`;
+            const nextEmi = emi.emis.find(e => e.paidAmount < emi.amountPerEmi);
+            let dueBadge = '';
+            if(!isCompleted && nextEmi) {
+              const startDate = new Date(emi.startDate);
+              const dueDate = new Date(startDate.getFullYear(), startDate.getMonth() + (nextEmi.index - 1), startDate.getDate());
+              dueDate.setHours(0,0,0,0);
+              
+              const diffTime = today - dueDate;
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              
+              if(diffDays === 0) dueBadge = `<span class="pill due">Due Today</span>`;
+              else if(diffDays > 0) dueBadge = `<span class="pill i-owe">Overdue ${diffDays}d</span>`;
+              else dueBadge = `<span class="pill settled">Due in ${Math.abs(diffDays)}d</span>`;
             }
 
             const card = document.createElement('div');
             card.className = 'user-card';
             card.innerHTML = `
               <div class="user-meta">
-                <h4>${p.name}</h4>
-                <div class="muted"><i class="fas fa-clock"></i> Created ${new Date(parseInt(p.id)).toLocaleDateString()}</div>
+                <h4>${emi.partyName}</h4>
+                <div class="muted"><i class="fas fa-coins"></i> ₹ ${emi.amountPerEmi} x ${emi.totalEmis} EMIs</div>
+                <div class="muted"><i class="fas fa-check-circle"></i> Paid: ${paidCount}/${emi.totalEmis}</div>
+                ${dueBadge ? `<div style="margin-top:5px;">${dueBadge}</div>` : ''}
               </div>
               <div class="right-actions">
-                <button class="delete-party-btn" data-party-id="${p.id}"><i class="fas fa-trash-alt"></i> Delete</button>
-                <span class="pill ${balClass}">${balDisplay}</span>
+                 <span class="pill ${isCompleted ? 'settled' : 'owe-me'}">${isCompleted ? 'Completed' : 'Pending'}</span>
+                 ${isCompleted ? `<button class="delete-party-btn" data-emi-id="${emi.id}"><i class="fas fa-trash-alt"></i> Delete</button>` : ''}
               </div>
             `;
-            card.addEventListener('click', () => showLedger(p.id));
-            card.querySelector('.delete-party-btn').addEventListener('click', (e) => {
-              e.stopPropagation();
-              deleteParty(p.id);
-            });
+            card.addEventListener('click', () => showEmiDetails(emi.id));
+            
+            const delBtn = card.querySelector('.delete-party-btn');
+            if (delBtn) {
+              delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteEmi(emi.id);
+              });
+            }
             list.appendChild(card);
           });
         }
-      } 
+      }
       else if(tab === 'transactions'){
         content.innerHTML = `
           <div class="section-title"><i class="fas fa-receipt"></i> All Transactions</div>
           <div id="allTxnsList"></div>
         `;
         const list = document.getElementById('allTxnsList');
-        const txns = [...appData.transactions].reverse();
+        const txns = [...appData.transactions].sort((a,b) => new Date(b.date) - new Date(a.date));
 
         if(txns.length === 0) {
           list.innerHTML = `<div class="muted" style="text-align:center; padding:40px;">No transactions made yet.</div>`;
@@ -751,9 +1415,9 @@
             div.innerHTML = `
               <div class="list-left">
                 <div class="amount" style="color: ${t.type === 'debit' ? 'var(--danger)' : 'var(--success)'};">
-                  ${t.type === 'debit' ? 'Debit (Gave)' : 'Credit (Got)'}: ? ${t.amount.toFixed(2)}
+                  ${t.type === 'debit' ? 'Debit (Gave)' : 'Credit (Got)'}: ₹ ${t.amount.toFixed(2)}
                 </div>
-                <div class="date"><i class="fas fa-user"></i> ${partyName} � <i class="far fa-calendar"></i> ${new Date(t.date).toLocaleDateString()}</div>
+                <div class="date"><i class="fas fa-user"></i> ${partyName} · <i class="far fa-calendar"></i> ${new Date(t.date).toLocaleDateString()}</div>
                 ${t.desc ? `<div class="muted" style="margin-top:4px;">${t.desc}</div>` : ''}
               </div>
             `;
@@ -763,10 +1427,71 @@
       }
     }
 
+    // --- Excel Export Logic ---
+    function exportToExcel() {
+      if(typeof XLSX === 'undefined') {
+        showToast('Excel library still loading... try again in 2s');
+        return;
+      }
+
+      const txnData = appData.transactions.map(t => {
+        const party = appData.parties.find(p => p.id === t.partyId);
+        return {
+          "Date": new Date(t.date).toLocaleDateString(),
+          "Party Name": party ? party.name : 'Unknown',
+          "Type": t.type === 'debit' ? 'Debit (Gave)' : 'Credit (Got)',
+          "Amount (₹)": t.amount,
+          "Description": t.desc || ''
+        };
+      }).reverse();
+
+      const partyData = appData.parties.map(p => {
+        const bal = getPartyBalance(p.id);
+        return {
+          "Party Name": p.name,
+          "Category": p.category,
+          "Balance (₹)": bal.toFixed(2),
+          "Status": bal > 0 ? 'They Owe Me' : bal < 0 ? 'I Owe Them' : 'Settled'
+        };
+      });
+
+      let emiData = [];
+      appData.emis.forEach(emi => {
+        emi.emis.forEach(e => {
+          emiData.push({
+            "Party Name": emi.partyName,
+            "EMI No": `${e.index}/${emi.totalEmis}`,
+            "Total Amount (₹)": emi.amountPerEmi,
+            "Paid Amount (₹)": e.paidAmount || 0,
+            "Status": (e.paidAmount >= emi.amountPerEmi) ? 'Paid' : ((e.paidAmount > 0) ? 'Partial' : 'Unpaid')
+          });
+        });
+      });
+
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.json_to_sheet(txnData);
+      XLSX.utils.book_append_sheet(wb, ws1, "Transactions");
+      
+      const ws2 = XLSX.utils.json_to_sheet(partyData);
+      XLSX.utils.book_append_sheet(wb, ws2, "Parties Summary");
+
+      if(emiData.length > 0) {
+        const ws3 = XLSX.utils.json_to_sheet(emiData);
+        XLSX.utils.book_append_sheet(wb, ws3, "EMI Details");
+      }
+
+      const fileName = `Khata_Book_Report_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      showToast('Excel exported successfully!');
+    }
+
     // --- Event Listeners Setup ---
-    document.getElementById('addPartyBtn').addEventListener('click', addParty);
-    document.getElementById('partyNameInput').addEventListener('keyup', (e) => {
-      if (e.key === 'Enter') addParty();
+    document.getElementById('partyCancel').addEventListener('click', () => document.getElementById('partyModalBackdrop').classList.remove('show'));
+    document.getElementById('partySubmit').addEventListener('click', addParty);
+
+    document.getElementById('searchPartyInput').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      renderPartiesList(query);
     });
 
     document.getElementById('addDebitBtn').addEventListener('click', () => openTxnModal(currentPartyId, 'debit'));
@@ -775,7 +1500,14 @@
     document.getElementById('txnSubmit').addEventListener('click', submitTxn);
     document.getElementById('ledgerClose').addEventListener('click', () => document.getElementById('ledgerModalBackdrop').classList.remove('show'));
 
+    // EMI Modal Listeners
+    document.getElementById('emiCancel').addEventListener('click', () => document.getElementById('emiModalBackdrop').classList.remove('show'));
+    document.getElementById('emiSubmit').addEventListener('click', submitEmi);
+    document.getElementById('emiDetailsClose').addEventListener('click', () => document.getElementById('emiDetailsBackdrop').classList.remove('show'));
+
+    // Tab Listeners
     document.getElementById('tabHome').addEventListener('click', () => switchTab('home'));
+    document.getElementById('tabEmi').addEventListener('click', () => switchTab('emi'));
     document.getElementById('tabTransactions').addEventListener('click', () => switchTab('transactions'));
 
     // Drawer logic
@@ -790,11 +1522,14 @@
       drawerBackdrop.classList.remove('show');
     });
 
+    // Excel Export Listener
+    document.getElementById('exportDataBtn').addEventListener('click', exportToExcel);
+
     // Clear Data logic
     document.getElementById('clearDataBtn').addEventListener('click', () => {
       if(confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
         localStorage.removeItem('khataData');
-        appData = { parties: [], transactions: [] };
+        appData = { parties: [], transactions: [], emis: [] };
         showToast('All data cleared');
         switchTab('home');
       }
